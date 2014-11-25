@@ -49,8 +49,9 @@ private String ENCODE ;
 		
 		
 	}
-	public NETEASE(String encode){
-		this.ENCODE = encode ;
+	public NETEASE(){
+		System.out.println("程序正在启动...");
+		System.out.println("准备获取网易新闻...");
 	}
 	//保存获取到的主题links
 	public Queue<String> newsThemeLinks = new LinkedList<String>() ;
@@ -82,6 +83,7 @@ private String ENCODE ;
 		/*初始化各个标签等
 		 * 
 		 * */
+		ENCODE = "GB2312";
 		DBName = "NETEASE";   //数据库名称
 		DBTable = "GUONEI";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
@@ -154,6 +156,7 @@ private String ENCODE ;
 		/*初始化各个标签等
 		 * 
 		 * */
+		ENCODE = "GB2312";
 		DBName = "NETEASE";   //数据库名称
 		DBTable = "test";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
@@ -230,6 +233,7 @@ private String ENCODE ;
 		/*初始化各个标签等 编码 gb2312
 		 * 
 		 * */
+		ENCODE = "GB2312";
 		DBName = "NETEASE";   //数据库名称
 		DBTable = "GuoJi";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
@@ -245,7 +249,8 @@ private String ENCODE ;
 		newsContentLinksReg = "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html";
 		
 		String guoJiHtml = findContentHtml(theme);
-		
+		//保存已经访问的links
+		Queue<String> visitedLinks = new LinkedList<String>();
 		//匹配获得内容的links
 		Pattern newPage = Pattern.compile(newsContentLinksReg);
         
@@ -254,12 +259,15 @@ private String ENCODE ;
         while(themeMatcher.find()){
         	i++;
         	String url = themeMatcher.group();
-        	String html = findContentHtml(url);
-        	System.out.println(url);
-//        	System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
-//        	System.out.println(findNewsContent(html,newsContentLabel));
-        	crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
+        	if(!visitedLinks.contains(url)){
+        		String html = findContentHtml(url);
+        		System.out.println(url);
+//        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
+//        		System.out.println(findNewsContent(html,newsContentLabel));
+        		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
+        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
+        		visitedLinks.add(url);
+        	}
         	
         }
         System.out.println(i);
@@ -273,6 +281,7 @@ private String ENCODE ;
 		/*初始化各个标签等 编码 gb2312
 		 * 
 		 * */
+		ENCODE = "GB2312";
 		DBName = "NETEASE";   //数据库名称
 		DBTable = "war";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
@@ -285,8 +294,7 @@ private String ENCODE ;
 		/*这个模块分四部分抓取
 		 * 1、主页"http://war.163.com/index.html"
 		 * 2.详细分类一共10叶：http://war.163.com/special/millatestnews/ http://war.163.com/special/millatestnews_06/
-		 * 3.军事博客：http://war.163.com/special/00011232/militaryblog09.html
-		 * 4.军事历史：http://war.163.com/special/historyread/
+		 * 3.军事历史：http://war.163.com/special/historyread/
 		 * */
 		//主题
 		Queue<String> warNewsThemeLinks = new LinkedList<String>();
@@ -299,25 +307,152 @@ private String ENCODE ;
 		newsContentLinksReg = "http://war.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html";
 		warNewsThemeLinks.offer(theme);
 		warNewsContentLinks = findContentLinks(warNewsThemeLinks,newsContentLinksReg);
-		
+//		
 		while(!warNewsContentLinks.isEmpty()){
 			String url = warNewsContentLinks.poll();
 			String html = findContentHtml(url);  //获取新闻的html
-			System.out.println(url);
-//			System.out.println(findNewsTitle(html,new String[]{"title",""},"_网易新闻中心"));
+//			System.out.println(url);
+			crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
+		}
+		
+		//详细分类模块
+		theme  = "http://war.163.com/special/millatestnews/";
+		newsThemeLinksReg = "http://war.163.com/special/millatestnews(_[0-9]{2})*/";  //主题正则表达式
+		newsContentLinksReg = "http://war.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html"; //内容正则表达式
+		warNewsThemeLinks = findThemeLinks(theme,newsThemeLinksReg);
+		warNewsContentLinks = findContentLinks(warNewsThemeLinks,newsContentLinksReg);
+//		int k = 1;
+		while(!warNewsContentLinks.isEmpty()){
+			String url = warNewsContentLinks.poll();
+			String html = findContentHtml(url);  //获取新闻的html
+//			System.out.println(url);
+//			System.out.println(findNewsTitle(html,new String[]{"title",""},"_网易军事"));
 //			System.out.println(findNewsContent(html,new String[]{"id" ,"endText"}));
 //			System.out.println(findNewsTime(html,new String[]{"class","ep-time-soure cDGray"}));
 //			System.out.println(findNewsCategroy(html,new String[]{"class","ep-crumb JS_NTES_LOG_FE"}));
 //			System.out.println(findNewsComment(url,html,newsCategroyLabel));
-			
+//			k++;
 			
 //			System.out.println(findNewsComment(url,html,newsCategroyLabel));
 //			System.out.println("\n");
-			crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
+			crut.add(findNewsTitle(html,newsTitleLabel,"_网易军事"), findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"),findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
 					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
 		}
+//		System.out.println(k);
+		
+		//军事历史
+		theme = "http://war.163.com/special/historyread/";
+		newsThemeLinksReg = "http://war.163.com/special/historyread(_[0-9]{2})*/";  //主题正则表达式
+		newsContentLinksReg = "http://war.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html"; //内容正则表达式
+		warNewsThemeLinks = findThemeLinks(theme,newsThemeLinksReg);
+		warNewsContentLinks = findContentLinks(warNewsThemeLinks,newsContentLinksReg);
+//		int j = 1 ;
+		while(!warNewsContentLinks.isEmpty()){
+			String url = warNewsContentLinks.poll();
+			String html = findContentHtml(url);  //获取新闻的html
+//			System.out.println(url);
+//			System.out.println(findNewsTitle(html,new String[]{"title",""},"_网易军事"));
+//			System.out.println(findNewsContent(html,new String[]{"id" ,"endText"}));
+//			System.out.println(findNewsTime(html,new String[]{"class","ep-time-soure cDGray"}));
+//			System.out.println(findNewsCategroy(html,new String[]{"class","ep-crumb JS_NTES_LOG_FE"}));
+//			System.out.println(findNewsComment(url,html,newsCategroyLabel));
+//			j++;
+			
+//			System.out.println(findNewsComment(url,html,newsCategroyLabel));
+//			System.out.println("\n");
+			crut.add(findNewsTitle(html,newsTitleLabel,"_网易军事"), findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"),findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
+		}
+//		System.out.println(j);
+	}
+	//深度新闻
+	public void getFocusNews(){
+		/*初始化各个标签等 编码 gb2312
+		 * 
+		 * */
+		ENCODE = "GB2312";
+		DBName = "NETEASE";   //数据库名称
+		DBTable = "focus";   //表名
+		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
+		newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
+		newsTimeLabel = new String[]{"style","float:left;"};   //新闻时间"class","info"  
+		newsSourceLabel =new String[]{"class","path","网易新闻-深度报道"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
+		newsCategroyLabel = new String[]{"class","path"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
+		CRUT crut = new CRUT(DBName,DBTable);
+		
+		theme = "http://focus.news.163.com/";
+		
+		//内容正则表达式http://focus.news.163.com/13/0325/18/8QR65LJS00011SM9.html
+		newsContentLinksReg = "http://focus.news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html"; //内容正则表达式
+		
+		String focusHtml = findContentHtml(theme);
+		Queue<String> visitedLinks = new LinkedList<String>();
+		//匹配获得内容的links
+		Pattern newPage = Pattern.compile(newsContentLinksReg);
+        
+        Matcher themeMatcher = newPage.matcher(focusHtml);
+//        int i = 0;
+        while(themeMatcher.find()){
+//        	i++;
+        	String url = themeMatcher.group();
+        	if(!visitedLinks.contains(url)){
+        		String html = findContentHtml(url);
+//        		System.out.println(url);
+//        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
+//        		System.out.println(findNewsTime(html,newsTimeLabel));
+        		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
+        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
+        		visitedLinks.add(url);
+        	}
+        	
+        }
+//        System.out.println(i);
 	}
 	
+	//评论新闻
+	public void getViewNews(){
+		/*初始化各个标签等 编码 gb2312
+		 * 
+		 * */
+		ENCODE = "GB2312";
+		DBName = "NETEASE";   //数据库名称
+		DBTable = "view";   //表名
+		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
+		newsContentLabel = new String[]{"class" ,"feed-text"};  //新闻内容标签 class="feed-text"
+		newsTimeLabel = new String[]{"style","float:left;"};   //新闻时间"class","info"  
+		newsSourceLabel =new String[]{"class","path","网易新闻-深度报道"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
+		newsCategroyLabel = new String[]{"class","path"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
+		CRUT crut = new CRUT(DBName,DBTable);
+		
+		theme = "http://view.163.com/";
+		
+		//内容正则表达式http://view.163.com/14/1125/11/ABT5R5GF00012Q9L.html
+		newsContentLinksReg = "http://view.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html"; //内容正则表达式
+		
+		String focusHtml = findContentHtml(theme);
+		Queue<String> visitedLinks = new LinkedList<String>();
+		//匹配获得内容的links
+		Pattern newPage = Pattern.compile(newsContentLinksReg);
+        
+        Matcher themeMatcher = newPage.matcher(focusHtml);
+//        int i = 0;
+        while(themeMatcher.find()){
+//        	i++;
+        	String url = themeMatcher.group();
+        	if(!visitedLinks.contains(url)){
+        		String html = findContentHtml(url);
+//        		System.out.println(url);
+//        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
+//        		System.out.println(findNewsTime(html,newsTimeLabel));
+        		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel),findNewsComment(url,html,newsCategroyLabel), findNewsSource(html,newsSourceLabel),
+        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
+        		visitedLinks.add(url);
+        	}
+        	
+        }
+//        System.out.println(i);
+	}
 	@Override
 	public Queue<String> findThemeLinks(String themeLink ,String themeLinkReg) {
 		
@@ -341,8 +476,8 @@ private String ENCODE ;
 				{
 				
 					LinkTag n = (LinkTag) nodeList.elementAt(i);
-		        	System.out.print(n.getStringText() + "==>> ");
-		       	 	System.out.println(n.extractLink());
+//		        	System.out.print(n.getStringText() + "==>> ");
+//		       	 	System.out.println(n.extractLink());
 					//新闻主题
 					Matcher themeMatcher = newsThemeLink.matcher(n.extractLink());
 					if(themeMatcher.find()){
@@ -528,7 +663,7 @@ private String ENCODE ;
 			titleBuf = HandleHtml(html,label[0],label[1]);
 		}
 		if(titleBuf.contains(buf))
-			titleBuf = titleBuf.substring(0, titleBuf.indexOf(buf)+7)	;
+			titleBuf = titleBuf.substring(0, titleBuf.indexOf(buf)+buf.length())	;
 		return titleBuf;
 	}
 	@Override
@@ -567,6 +702,8 @@ private String ENCODE ;
 		if(timeBuf == ""){
 			timeBuf = HandleHtml(html,"id","ptime");
 //			return timeBuf;
+		}else if(label[0].equals("style")&&label[1].equals("float:left;")){
+			timeBuf = timeBuf.substring(0,19);
 		}else
 			timeBuf = timeBuf.substring(9, 28);  //根据不同新闻 不同处理
 		return timeBuf;
@@ -607,7 +744,13 @@ private String ENCODE ;
 		}
 		if(categroyBuf.contains("&gt;")){
 			categroyBuf = categroyBuf.replaceAll("&gt;", "");
-			categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻中心")+5, categroyBuf.indexOf("正文")-1);
+			if(categroyBuf.contains("新闻中心")){
+				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻中心")+5, categroyBuf.indexOf("正文")-1);
+			}else if(categroyBuf.contains("新闻频道")){
+				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻频道")+5, categroyBuf.length());
+			}
+			
+			categroyBuf = categroyBuf.replaceAll("\\s+", "");
 		}
 		return categroyBuf;
 	}
@@ -640,21 +783,26 @@ private String ENCODE ;
 		}
 		if(categroyBuf.contains("&gt;")){
 			categroyBuf = categroyBuf.replaceAll("&gt;", "");
-			categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻中心")+5, categroyBuf.indexOf("正文")-1);
+			if(categroyBuf.contains("新闻中心")){
+				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻中心")+5, categroyBuf.indexOf("正文")-1);
+			}else if(categroyBuf.contains("新闻频道")){
+				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻频道")+5, categroyBuf.length());
+			}
+			
 			categroyBuf = categroyBuf.replaceAll("\\s+", "");
 		}
-		//如果网页失效 直接返回null
-		if(categroyBuf == ""){ 
-			System.out.println("纳尼！！！");
-			return null;
-		}
+//		//如果网页失效 直接返回null
+//		if(categroyBuf == ""){ 
+//			System.out.println("纳尼！！！");
+//			return null;
+//		}
 		//评论保存结果
-		StringBuffer result = new StringBuffer("");
+		String result = null;
 		
 		//评论url
-		String commentUrl;
+		String commentUrl = null;
 		// TODO Auto-generated method stubhttp://comment.news.163.com/news_guoji2_bbs/ABQ1KHA20001121M.html
-		String[] s1 = {"http://comment.news.163.com/news_shehui7_bbs/","http://comment.news.163.com/news_guonei8_bbs/","http://comment.news.163.com/news3_bbs/","http://comment.news.163.com/news_guoji2_bbs/"};
+		String[] s1 = {"http://comment.news.163.com/news_shehui7_bbs/","http://comment.news.163.com/news_guonei8_bbs/","http://comment.news.163.com/news3_bbs/","http://comment.news.163.com/news_guoji2_bbs/","http://comment.news.163.com/news_junshi_bbs/"};
 		String s2 = ".html";
 		String s3 = url.substring(url.lastIndexOf("/")+1, url.lastIndexOf("."))+s2;
 		if(categroyBuf.equals("社会新闻")){
@@ -665,9 +813,34 @@ private String ENCODE ;
 			commentUrl = s1[1] + s3 ;
 		}else if(categroyBuf.equals("国际新闻")){
 			commentUrl = s1[3] + s3 ;
-		}else{
+		}else if(categroyBuf.equals("军事")){
+			commentUrl = s1[4] + s3 ;
+		}else if(categroyBuf.equals("深度报道")){
+			commentUrl = s1[0] + s3 ;
+		}else if(categroyBuf.equals("评论频道")){
 			commentUrl = s1[2] + s3 ;
+		}else
+			commentUrl = s1[2] + s3 ;
+		result = handleComment(commentUrl);
+		if(result == null && categroyBuf.equals("军事")){
+			commentUrl = null;
+			commentUrl = s1[2] +s3 ;
+			result = handleComment(commentUrl);
 		}
+		
+		if(result == null && url.contains("war.163.com")){
+			commentUrl = null;
+			commentUrl = s1[4] + s3 ;
+			result = handleComment(commentUrl);
+		}
+		
+		return result;
+	}
+	
+	//烦人的评论处理
+	public String handleComment(String commentUrl){
+		
+		StringBuffer result = new StringBuffer();
 		
 		URL link = null;
 		
@@ -713,14 +886,8 @@ private String ENCODE ;
             return null;
         }else;
         	//System.out.println(content);
-        try {
-			Thread.sleep(10);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
         if(!content.contains("去跟贴广场看看")){
-        	System.out.println("居然没有 去跟帖广场看看"+ categroyBuf + commentUrl);
+        	System.out.println("居然没有 去跟帖广场看看"+ commentUrl);
         	return null;
         	
         }
@@ -756,10 +923,18 @@ private String ENCODE ;
 	}
 	
 
+	public void getNETEASENews(){
+		getGuoNeiNews();
+		getSheHuiNews();
+		getWarNews();
+		getFocusNews();
+		getViewNews();
+		getGuoJiNews();
+	}
 	public static void main(String[] args){
 		
-		NETEASE netease = new NETEASE("gb2312");
-		netease.getWarNews();
+		NETEASE netease = new NETEASE();
+		netease.getNETEASENews();
 	}
 	
 }
