@@ -9,6 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +40,7 @@ private String ENCODE ;
 	private String[] newsSourceLabel ; //（3个参数）新闻来源 同新闻时间
 	private String[] newsCategroyLabel ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
 //	private String[] news
-	
+	public String DBTableTest;
 	public NETEASE(String encode, String[] newsTitle ,String[] newsContent ,String[] newsTime,String[] newsSource,String[] newsCategroy ){
 		this.ENCODE = encode ;
 		this.newsTitleLabel = newsTitle ;
@@ -48,6 +51,9 @@ private String ENCODE ;
 		
 		
 		
+	}
+	public NETEASE(String dbtable){
+		this.DBTableTest = dbtable;
 	}
 	public NETEASE(){
 		System.out.println("程序正在启动...");
@@ -84,8 +90,8 @@ private String ENCODE ;
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "NETEASE";   //数据库名称
-		DBTable = "GUONEI";   //表名
+		DBName = "NET";   //数据库名称
+		DBTable = "guonei";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
@@ -157,8 +163,8 @@ private String ENCODE ;
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "NETEASE";   //数据库名称
-		DBTable = "test";   //表名
+		DBName = "NET";   //数据库名称
+		DBTable = "shehui";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
@@ -234,8 +240,8 @@ private String ENCODE ;
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "NETEASE";   //数据库名称
-		DBTable = "GuoJi";   //表名
+		DBName = "NET";   //数据库名称
+		DBTable = "guoji";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
@@ -282,7 +288,7 @@ private String ENCODE ;
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "NETEASE";   //数据库名称
+		DBName = "NET";   //数据库名称
 		DBTable = "war";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
@@ -372,7 +378,7 @@ private String ENCODE ;
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "NETEASE";   //数据库名称
+		DBName = "NET";   //数据库名称
 		DBTable = "focus";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
@@ -416,7 +422,7 @@ private String ENCODE ;
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "NETEASE";   //数据库名称
+		DBName = "NET";   //数据库名称
 		DBTable = "view";   //表名
 		newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		newsContentLabel = new String[]{"class" ,"feed-text"};  //新闻内容标签 class="feed-text"
@@ -748,7 +754,9 @@ private String ENCODE ;
 				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻中心")+5, categroyBuf.indexOf("正文")-1);
 			}else if(categroyBuf.contains("新闻频道")){
 				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻频道")+5, categroyBuf.length());
-			}
+			}else if(categroyBuf.contains("新闻首页")){
+				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻首页")+5, categroyBuf.indexOf("正文")-1);
+			}else;
 			
 			categroyBuf = categroyBuf.replaceAll("\\s+", "");
 		}
@@ -922,7 +930,7 @@ private String ENCODE ;
 		
 	}
 	
-
+	//启动所有程序
 	public void getNETEASENews(){
 		getGuoNeiNews();
 		getSheHuiNews();
@@ -931,10 +939,67 @@ private String ENCODE ;
 		getViewNews();
 		getGuoJiNews();
 	}
-	public static void main(String[] args){
+	//线程池
+	public void createThreadPool(){
+		/*   
+         * 创建线程池，最小线程数为6，最大线程数为12，线程池维护线程的空闲时间为10秒，   
+         * 使用队列深度为20的有界队列，如果执行程序尚未关闭，则位于工作队列头部的任务将被删除，   
+         * 然后重试执行程序（如果再次失败，则重复此过程），里面已经根据队列深度对任务加载进行了控制。   
+         */ 
+		ThreadPoolExecutor cg = new ThreadPoolExecutor(6,12,10,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(20),  
+                new ThreadPoolExecutor.DiscardOldestPolicy());
+		TaskThreadPoolForNETEASE test1 = new TaskThreadPoolForNETEASE("guonei");
+		TaskThreadPoolForNETEASE test2 = new TaskThreadPoolForNETEASE("guoji");
+		TaskThreadPoolForNETEASE test3 = new TaskThreadPoolForNETEASE("war");
+		TaskThreadPoolForNETEASE test4 = new TaskThreadPoolForNETEASE("view");
+		TaskThreadPoolForNETEASE test5 = new TaskThreadPoolForNETEASE("focus");
+		TaskThreadPoolForNETEASE test6 = new TaskThreadPoolForNETEASE("shehui");
+		cg.execute(test1);
+		cg.execute(test2);
+		cg.execute(test3);
+		cg.execute(test4);
+		cg.execute(test5);
+		cg.execute(test6);
+		cg.shutdown();
 		
+		
+	}
+	public static void main(String[] args){
+		long start = System.currentTimeMillis();
 		NETEASE netease = new NETEASE();
-		netease.getNETEASENews();
+//		netease.getNETEASENews();
+		netease.createThreadPool();
+		long end = System.currentTimeMillis();
+		System.out.println(end-start);
+	}
+	
+}
+
+class TaskThreadPoolForNETEASE implements Runnable{
+	
+	public String dbtable1;
+	public TaskThreadPoolForNETEASE(String dbtable1){
+		this.dbtable1 = dbtable1;
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		NETEASE threadNETEASE = new NETEASE(dbtable1);
+		if(dbtable1.equals("guonei"))
+			threadNETEASE.getGuoNeiNews();
+		else if(dbtable1.equals("guoji"))
+			threadNETEASE.getGuoJiNews();
+		else if(dbtable1.equals("shehui"))
+			threadNETEASE.getSheHuiNews();
+		else if(dbtable1.equals("focus"))
+			threadNETEASE.getFocusNews();
+		else if(dbtable1.equals("war"))
+			threadNETEASE.getWarNews();
+		else if(dbtable1.equals("view"))
+			threadNETEASE.getViewNews();
+		else;
+		threadNETEASE = null;
 	}
 	
 }
