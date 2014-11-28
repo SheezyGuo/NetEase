@@ -8,23 +8,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Vector;
 
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.HasAttributeFilter;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.filters.OrFilter;
-import org.htmlparser.filters.TagNameFilter;
-import org.htmlparser.nodes.TextNode;
-import org.htmlparser.tags.LinkTag;
-import org.htmlparser.tags.TableTag;
-import org.htmlparser.tags.TitleTag;
 import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
-import org.htmlparser.visitors.HtmlPage;
+
 
 /*
  * 针对成都商报的新闻爬虫
@@ -491,37 +482,37 @@ public class CDSB implements Runnable {
     	 * */
 //    	String url3 = "http://e.chengdu.cn/html/2014-09/10/content_487767.htm";
 //    	String url2 = "http://paper.people.com.cn/rmrb/html/2014-09/05/nw.D110000renmrb_20140905_1-01.htm";
-    	String url1 = "http://e.chengdu.cn/html/2014-10/20/content_493712.htm";
-    	String url2 = "http://www.wccdaily.com.cn/shtml/hxdsb/20141021/251241.shtml";
-    	
-    	String url3 = "http://epaper.ynet.com/html/2014-11/05/content_94803.htm?div=-1";
-    	String url4 = "http://bjwb.bjd.com.cn/html/2014-11/03/content_229916.htm";
-    	String url5 = "http://bjwb.bjd.com.cn/html/2014-11/06/content_231000.htm";
-    	String url6 = "http://www.cdwb.com.cn/html/2014-11/04/content_2140919.htm";
-    	String url7 = "http://www.cdrb.com.cn/html/2014-11/06/content_2141933.htm";
+//    	String url1 = "http://e.chengdu.cn/html/2014-10/20/content_493712.htm";
+//    	String url2 = "http://www.wccdaily.com.cn/shtml/hxdsb/20141021/251241.shtml";
+//    	
+//    	String url3 = "http://epaper.ynet.com/html/2014-11/05/content_94803.htm?div=-1";
+//    	String url4 = "http://bjwb.bjd.com.cn/html/2014-11/03/content_229916.htm";
+//    	String url5 = "http://bjwb.bjd.com.cn/html/2014-11/06/content_231000.htm";
+//    	String url6 = "http://www.cdwb.com.cn/html/2014-11/04/content_2140919.htm";
+//    	String url7 = "http://www.cdrb.com.cn/html/2014-11/06/content_2141933.htm";
     	String url8 = "http://www.chinamil.com.cn/jfjbmap/content/2014-11/08/content_92414.htm";
-    	String url9 = "http://xmwb.xinmin.cn/html/2014-11/06/content_5_2.htm";
-    	String url10 = "http://newspaper.jfdaily.com/xwcb/html/2014-11/06/content_33941.htm";
-    	String url11 = "http://newspaper.jfdaily.com/xwcb/html/2014-11/06/content_33936.htm";
-    	String url12 = "http://gzdaily.dayoo.com/html/2014-11/06/content_2790788.htm";
-    	String url13 = "http://www.ycwb.com/ePaper/ycwb/html/2014-11/06/content_574483.htm?div=-1";
-    	String url14 = "http://www.ycwb.com/ePaper/ycwb/html/2014-09/29/content_550830.htm?div=-1";
-    	String url15 = "http://epaper.nandu.com/epaper/A/html/2014-11/06/content_3339541.htm?div=-1";
-    	String url16 = "http://epaper.jinghua.cn/html/2014-11/07/content_142969.htm";
-    	String url17 = "http://kb.dsqq.cn/html/2014-11/07/content_369572.htm";
-    	
-    	String[] s1 = {"",""};
-    	String[] s2 = {"id","ozoom"};
-    	String s3 = "utf-8";  //= "gb2312"; //gb2312 utf-8
+//    	String url9 = "http://xmwb.xinmin.cn/html/2014-11/06/content_5_2.htm";
+//    	String url10 = "http://newspaper.jfdaily.com/xwcb/html/2014-11/06/content_33941.htm";
+//    	String url11 = "http://newspaper.jfdaily.com/xwcb/html/2014-11/06/content_33936.htm";
+//    	String url12 = "http://gzdaily.dayoo.com/html/2014-11/06/content_2790788.htm";
+//    	String url13 = "http://www.ycwb.com/ePaper/ycwb/html/2014-11/06/content_574483.htm?div=-1";
+//    	String url14 = "http://www.ycwb.com/ePaper/ycwb/html/2014-09/29/content_550830.htm?div=-1";
+//    	String url15 = "http://epaper.nandu.com/epaper/A/html/2014-11/06/content_3339541.htm?div=-1";
+//    	String url16 = "http://epaper.jinghua.cn/html/2014-11/07/content_142969.htm";
+//    	String url17 = "http://kb.dsqq.cn/html/2014-11/07/content_369572.htm";
+//    	
+//    	String[] s1 = {"",""};
+//    	String[] s2 = {"id","ozoom"};
+//    	String s3 = "utf-8";  //= "gb2312"; //gb2312 utf-8
     	String[] bqtitle = {"style","line-height:140%;"};
 		String[] bqcontent = {"id","ozoom"};
 		String[] bqdate = {"height","25"};
-		String[] bqnewsource = {"解放军报","....."};
+//		String[] bqnewsource = {"解放军报","....."};
 		String[] bqcategroy ={"class","info"};
 		String bqbuf ="";
 		String encode = "utf-8";
-		String DBName = "jfjb";
-		String DBTable = "cg";
+//		String DBName = "jfjb";
+//		String DBTable = "cg";
 		String photourl = "http://www.chinamil.com.cn/jfjbmap/";
 		String imageurl = "IMG src=\"(.*?)res(.*?)attpic_brief.jpg\"";     //"img src=\"(.*?)res(.*?)attpic_brief.jpg\""
 		String imagescr = "http:\"?(.*?)(\"|>|\\s+)";     //"http:\"?(.*?)(\"|>|\\s+)"
@@ -534,7 +525,7 @@ public class CDSB implements Runnable {
 //    	T.handleOriginalTitle(T.text);
 //    	memory(url1);
     	
-    	String s = "sfsafsa98u8swf8i98wufwe";
+//    	String s = "sfsafsa98u8swf8i98wufwe";
 //    	System.out.println(s.replaceAll("[^0-9]", ""));
     	
 //    	memory(url1);

@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +43,7 @@ public class GetLink {
 	//匹配内容link 
 	private String newContentLink ; // ="http://www.chinamil.com.cn/jfjbmap/content/[0-9]{4}-[0-9]{2}/[0-9]{2}/content_[0-9]{5,6}.htm";
 	//匹配PDF link 预留
-	private String newPdfLink;
+//	private String newPdfLink;
 	
 	//获取主题链接
 	private String newurl1 ;         //"http://e.chengdu.cn/html/"
@@ -82,6 +81,7 @@ public class GetLink {
 		try{
 			Parser parser = new Parser(themeUrl);
 			parser.setEncoding("utf-8");
+			@SuppressWarnings("serial")
 			NodeList nodeList = parser.extractAllNodesThatMatch(new NodeFilter(){
 				public boolean accept(Node node)
 				{
@@ -142,6 +142,7 @@ public class GetLink {
 	}
 	
 	
+	@SuppressWarnings("static-access")
 	public void allWeWillDo(String themeUrl,String[] bqtitle,String[] bqcontent,
     		String[] bqdate,String[] bqnewsource ,String[] bqcategroy ,String bqbuf,String encode ,String DBName ,String DBTable,
     		String photourl,String imageurl,String imagescr,String imagebuf) throws Exception{
@@ -284,9 +285,9 @@ public class GetLink {
 	
 	public static void main(String args[]) throws Exception{
 		long start = System.currentTimeMillis();
-		String url ="http://www.wccdaily.com.cn/shtml/hxdsb/20141029/va01.shtml" ;
-		String url1 = "http://www.chinamil.com.cn/jfjbmap/content/2014-10/27/node_2.htm";
-		String test1 = "http://zqb.cyol.com/html/2014-10/29/nbs.D110000zgqnb_01.htm";
+//		String url ="http://www.wccdaily.com.cn/shtml/hxdsb/20141029/va01.shtml" ;
+//		String url1 = "http://www.chinamil.com.cn/jfjbmap/content/2014-10/27/node_2.htm";
+//		String test1 = "http://zqb.cyol.com/html/2014-10/29/nbs.D110000zgqnb_01.htm";
 //		GetLink test = new GetLink();
 //		test.allWeWillDo(url1);
 //		test.hxdsb();

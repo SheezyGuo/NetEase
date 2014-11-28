@@ -30,23 +30,10 @@ public class GetImage {
     private static  String IMGURL_REG ; //= "img src=\"(.*?)res(.*?)attpic_brief.jpg\"";
     // 获取src路径的正则  
     private static  String IMGSRC_REG ; // = "http:\"?(.*?)(\"|>|\\s+)";   //待修改~~
-//    private static final String IMGSRC_REG = "http://e.chengdu.cn/res/(.*?)_attpic_brief.jpg";
-  
+//    private static final String IMGSRC_REG = "http://e.chengdu.cn/res/(.*?)_attpic_brief.jpg"; 
       
-//    public static void main(String[] args) throws Exception { 
-//    	String url = "http://e.chengdu.cn/html/2014-08/22/content_485002.htm";
-//        GetImage cm = new GetImage();  
-//        //获得html文本内容  
-//        String HTML = cm.getHTML(url);  
-//        //获取图片标签  
-//        List<String> imgUrl = cm.getImageUrl(HTML);  
-//        //获取图片src地址  
-//        List<String> imgSrc = cm.getImageSrc(imgUrl);  
-//        //下载图片  
-//        cm.Download(imgSrc);  
-//    }  
-      
-    public GetImage(String url ,String imgurl ,String imgsrc,String imageBuf){
+    @SuppressWarnings("static-access")
+	public GetImage(String url ,String imgurl ,String imgsrc,String imageBuf){
     	this.photourl = url;
     	this.IMGURL_REG = imgurl;
     	this.IMGSRC_REG = imgsrc;
@@ -59,7 +46,8 @@ public class GetImage {
      * @return 
      * @throws Exception 
      */  
-    private String getHTML(String url) throws Exception {  
+    @SuppressWarnings("unused")
+	private String getHTML(String url) throws Exception {  
         URL uri = new URL(url);  
         URLConnection connection = uri.openConnection();  
         InputStream in = connection.getInputStream();  

@@ -1,6 +1,5 @@
 package com.uestc.spider.www;
 
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -155,10 +154,11 @@ public class ThreadPoolHandleNews{
 		
 	
 	}
-	private synchronized int getQueueSize(Queue queue){
-		
-		return queue.size();
-	}
+//	@SuppressWarnings("unused")
+//	private synchronized int getQueueSize(@SuppressWarnings("rawtypes") Queue queue){
+//		
+//		return queue.size();
+//	}
 	
 	public static void main(String[] args){
 		

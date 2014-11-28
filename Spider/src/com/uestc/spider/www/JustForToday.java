@@ -79,7 +79,7 @@ public class JustForToday extends Thread {
 	
 	public static void main(String[] args){
 		
-		JustForToday today = new JustForToday();
+//		JustForToday today = new JustForToday();
 //		today.cdsbToday();
 	}
 }

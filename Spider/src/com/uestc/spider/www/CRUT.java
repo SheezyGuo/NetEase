@@ -1,15 +1,9 @@
 package com.uestc.spider.www;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -24,12 +18,12 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 public class CRUT {
 
-	static private Mongo mg  = null;
-	static private DB db ;
-	static private DBCollection users;
-	static private GridFS gd;
-	static private String DBName ;  // = "TODAY"; //数据库名称 华西都市报 成都商报等
-	static private String DBTable  ; //= "cg"; //数据库表名
+	private Mongo mg  = null;
+	private DB db ;
+	private DBCollection users;
+	private GridFS gd;
+	private String DBName ;  // = "TODAY"; //数据库名称 华西都市报 成都商报等
+	private String DBTable  ; //= "cg"; //数据库表名
 	
 	public CRUT(String dbname,String dbtable){
 		
@@ -163,7 +157,8 @@ public class CRUT {
 	}
 	
 	//查看数据库中所有数据
-    private void queryAll() {
+    @SuppressWarnings("unused")
+	private void queryAll() {
     	DBCollection users = db.getCollection("users");
 		System.out.println("查询users的所有数据：");
 		//db游标
