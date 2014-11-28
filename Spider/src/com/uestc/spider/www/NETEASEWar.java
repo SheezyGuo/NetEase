@@ -39,19 +39,29 @@ public class NETEASEWar implements NETEASE{
 	public NETEASEWar(){
 	}
 	
-	public void getNETEASEGuoNeiNews(){
+	public void getNETEASEWarNews(){
 		DBName = "N";
-		DBTable = "gn";
+		DBTable = "war";
 		ENCODE = "gb2312";
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
 		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		String[] newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
-		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-国内新闻"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
+		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-军事新闻"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
 		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
 		
 		CRUT crut = new CRUT(DBName ,DBTable);
+		/*这个模块分3部分抓取
+		 * 1、主页"http://war.163.com/index.html"
+		 * 2.详细分类一共10叶：http://war.163.com/special/millatestnews/ http://war.163.com/special/millatestnews_06/
+		 * 3.军事历史：http://war.163.com/special/historyread/
+		 * */
+		//主题
+		Queue<String> warNewsThemeLinks = new LinkedList<String>();
+		//内容
+		Queue<String> warNewsContentLinks = new LinkedList<String>();
+		
 		//国内新闻 首页链接
-		theme = "http://news.163.com/domestic/";
+		theme = "http://war.163.com/index.html";
 		
 		//新闻主题links的正则表达式
 		newsThemeLinksReg = "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
@@ -78,18 +88,17 @@ public class NETEASEWar implements NETEASE{
 			return;
 		}
 		//保存国内新闻主题links
-		Queue<String> guoNeiNewsTheme = new LinkedList<String>();
-		guoNeiNewsTheme = findThemeLinks(theme,newsThemeLinksReg);
+
+		warNewsThemeLinks = findThemeLinks(theme,newsThemeLinksReg);
 //		System.out.println(guoNeiNewsTheme);
 		
 		//获取国内新闻内容links
-		Queue<String>guoNeiNewsContent = new LinkedList<String>();
-		guoNeiNewsContent = findContentLinks(guoNeiNewsTheme,newsContentLinksReg);
+		warNewsContentLinks = findContentLinks(warNewsThemeLinks,newsContentLinksReg);
 //		System.out.println(guoNeiNewsContent);
 		//获取每个新闻网页的html
 		int i = 0;
-		while(!guoNeiNewsContent.isEmpty()){
-			String url = guoNeiNewsContent.poll();
+		while(!warNewsContentLinks.isEmpty()){
+			String url = warNewsContentLinks.poll();
 			String html = findContentHtml(url);  //获取新闻的html
 			System.out.println(url);
 //			System.out.println(html);
@@ -422,5 +431,8 @@ public class NETEASEWar implements NETEASE{
 		}
 		return categroyBuf;
 	}
-
+	public static void main(String[] args){
+		NETEASEWar test = new NETEASEWar();
+		test.getNETEASEWarNews();
+	}
 }

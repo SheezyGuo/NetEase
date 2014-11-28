@@ -27,10 +27,10 @@ public class NETEASEView implements NETEASE{
 	private String ENCODE ;   //html encode gb2312
 	
 	//新闻主题links的正则表达式
-	private String newsThemeLinksReg ; //= "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
+	private String newsThemeLinksReg ; 
 				
 	//新闻内容links的正则表达式
-	private String newsContentLinksReg ; //= "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html#f=dlist";
+	private String newsContentLinksReg ; 
 	//新闻主题link
 	private String theme ;
 
@@ -38,19 +38,19 @@ public class NETEASEView implements NETEASE{
 	public NETEASEView(){
 	}
 	
-	public void getNETEASEGuoNeiNews(){
+	public void getNETEASEViewNews(){
 		DBName = "N";
 		DBTable = "gn";
 		ENCODE = "gb2312";
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
 		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		String[] newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
-		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-国内新闻"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
-		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
+		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-评论新闻"}; //（3个参数）新闻来源 同新闻时间
+		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // 属性
 		
 		CRUT crut = new CRUT(DBName ,DBTable);
-		//国内新闻 首页链接
-		theme = "http://news.163.com/domestic/";
+		//评论新闻 首页链接
+		theme = "http://view.163.com/";
 		
 		//新闻主题links的正则表达式
 		newsThemeLinksReg = "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
@@ -76,25 +76,23 @@ public class NETEASEView implements NETEASE{
 		if(state != 200 && state != 201){
 			return;
 		}
-		//保存国内新闻主题links
-		Queue<String> guoNeiNewsTheme = new LinkedList<String>();
-		guoNeiNewsTheme = findThemeLinks(theme,newsThemeLinksReg);
+		//保存评论新闻主题links
+		Queue<String> viewNewsTheme = new LinkedList<String>();
+		viewNewsTheme = findThemeLinks(theme,newsThemeLinksReg);
 //		System.out.println(guoNeiNewsTheme);
 		
-		//获取国内新闻内容links
-		Queue<String>guoNeiNewsContent = new LinkedList<String>();
-		guoNeiNewsContent = findContentLinks(guoNeiNewsTheme,newsContentLinksReg);
+		//获取评论新闻内容links
+		Queue<String>viewNewsContent = new LinkedList<String>();
+		viewNewsContent = findContentLinks(viewNewsTheme,newsContentLinksReg);
 //		System.out.println(guoNeiNewsContent);
 		//获取每个新闻网页的html
 		int i = 0;
-		while(!guoNeiNewsContent.isEmpty()){
-			String url = guoNeiNewsContent.poll();
+		while(!viewNewsContent.isEmpty()){
+			String url = viewNewsContent.poll();
 			String html = findContentHtml(url);  //获取新闻的html
 			System.out.println(url);
 //			System.out.println(html);
 			i++;
-//			System.out.println(findNewsComment(url));
-//			System.out.println("\n");
 			crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
 					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
 		}
@@ -421,5 +419,8 @@ public class NETEASEView implements NETEASE{
 		}
 		return categroyBuf;
 	}
-
+	public static void main(String[] args){
+		NETEASEView test = new NETEASEView();
+		test.getNETEASEViewNews();
+	}
 }

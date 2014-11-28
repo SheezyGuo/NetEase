@@ -94,7 +94,7 @@ public class CDSB implements Runnable {
         } catch (MalformedURLException e) {
 //            e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+           
 //            e.printStackTrace();
         }
   
@@ -103,10 +103,10 @@ public class CDSB implements Runnable {
         	try {
 				httpUrlConnection = (HttpURLConnection) new URL(url).openConnection();
 			} catch (MalformedURLException e1) {
-				// TODO Auto-generated catch block
+				
 //				e1.printStackTrace();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
+				
 //				e1.printStackTrace();
 			} //创建连接
         	Thread thread = new Thread(this);
@@ -122,7 +122,6 @@ public class CDSB implements Runnable {
     }
   
     public void run() {
-        // TODO Auto-generated method stub
         try {
             httpUrlConnection.setRequestMethod("GET");
         } catch (ProtocolException e) {
@@ -351,7 +350,6 @@ public class CDSB implements Runnable {
     * 新闻来源
     * */
    public String handleOriginalSource(String html) {
-	// TODO Auto-generated method stub
 //	originalSource = handle(html,bqNewSource[0],bqNewSource[1]);
 //	originalSource = html;
 //	System.out.println(cgSource);
