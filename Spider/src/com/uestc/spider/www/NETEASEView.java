@@ -1,6 +1,8 @@
 package com.uestc.spider.www;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,70 +35,54 @@ public class NETEASEView implements NETEASE{
 	private String newsContentLinksReg ; 
 	//新闻主题link
 	private String theme ;
+	//图片计数
+	private int imageNumber = 1 ;
 
 	
 	public NETEASEView(){
 	}
 	
 	public void getNETEASEViewNews(){
-		DBName = "N";
-		DBTable = "gn";
-		ENCODE = "gb2312";
-		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
-		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
-		String[] newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
-		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-评论新闻"}; //（3个参数）新闻来源 同新闻时间
-		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // 属性
+		/*初始化各个标签等 编码 gb2312
+		 * 
+		 * */
+		ENCODE = "GB2312";
+		DBName = "NE";   //数据库名称
+		DBTable = "view";   //表名
+		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
+		String[] newsContentLabel = new String[]{"class" ,"feed-text"};  //新闻内容标签 class="feed-text"
+		String[] newsTimeLabel = new String[]{"style","float:left;"};   //新闻时间"class","info"  
+		String[] newsSourceLabel =new String[]{"class","path","网易新闻-深度报道"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
+		String[] newsCategroyLabel = new String[]{"class","path"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
+		CRUT crut = new CRUT(DBName,DBTable);
 		
-		CRUT crut = new CRUT(DBName ,DBTable);
-		//评论新闻 首页链接
 		theme = "http://view.163.com/";
 		
-		//新闻主题links的正则表达式
-		newsThemeLinksReg = "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
+		//内容正则表达式http://view.163.com/14/1125/11/ABT5R5GF00012Q9L.html
+		newsContentLinksReg = "http://view.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html"; //内容正则表达式
 		
-		//新闻内容links的正则表达式 (http://view.163.com/14/1119/10/ABDHAKC500012Q9L.html#f=dlist)
-		newsContentLinksReg = "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html#f=dlist";
-		
-		int state ;
-		try{
-			HttpURLConnection httpUrlConnection = (HttpURLConnection) new URL(theme).openConnection(); //创建连接
-			state = httpUrlConnection.getResponseCode();
-			httpUrlConnection.disconnect();
-		}catch (MalformedURLException e) {
-//          e.printStackTrace();
-			System.out.println("网络慢，已经无法正常链接，无法获取新闻");
-			return;
-		} catch (IOException e) {
-          // TODO Auto-generated catch block
-//          e.printStackTrace();
-			System.out.println("网络超级慢，已经无法正常链接，无法获取新闻");
-			return ;
-      }
-		if(state != 200 && state != 201){
-			return;
-		}
-		//保存评论新闻主题links
-		Queue<String> viewNewsTheme = new LinkedList<String>();
-		viewNewsTheme = findThemeLinks(theme,newsThemeLinksReg);
-//		System.out.println(guoNeiNewsTheme);
-		
-		//获取评论新闻内容links
-		Queue<String>viewNewsContent = new LinkedList<String>();
-		viewNewsContent = findContentLinks(viewNewsTheme,newsContentLinksReg);
-//		System.out.println(guoNeiNewsContent);
-		//获取每个新闻网页的html
-		int i = 0;
-		while(!viewNewsContent.isEmpty()){
-			String url = viewNewsContent.poll();
-			String html = findContentHtml(url);  //获取新闻的html
-			System.out.println(url);
-//			System.out.println(html);
-			i++;
-			crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, "");
-		}
-		System.out.println(i);
+		String focusHtml = findContentHtml(theme);
+		Queue<String> visitedLinks = new LinkedList<String>();
+		//匹配获得内容的links
+		Pattern newPage = Pattern.compile(newsContentLinksReg);
+        
+        Matcher themeMatcher = newPage.matcher(focusHtml);
+//        int i = 0;
+        while(themeMatcher.find()){
+//        	i++;
+        	String url = themeMatcher.group();
+        	if(!visitedLinks.contains(url)){
+        		String html = findContentHtml(url);
+//        		System.out.println(url);
+//        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
+//        		System.out.println(findNewsTime(html,newsTimeLabel));
+        		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
+        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+        		visitedLinks.add(url);
+        	}
+        	
+        }
+//        System.out.println(i);
 	
 	
 	}
@@ -336,7 +322,79 @@ public class NETEASEView implements NETEASE{
 	@Override
 	public String findNewsImages(String html , String[] label) {
 		// TODO Auto-generated method stub
-		return null;
+		String bufHtml = "";        //辅助
+		String imageNameTime  = "";
+//		Queue<String> imageUrl = new LinkedList<String>();  //保存获取的图片链接
+		if(html.contains("<div id=\"endText\">")&&html.contains("<!-- 分页 -->"))
+			bufHtml = html.substring(html.indexOf("<div id=\"endText\">"), html.indexOf("<!-- 分页 -->"));
+		else 
+			return null;
+		//获取图片时间，为命名服务
+		imageNameTime = findNewsTime(html,label).substring(0, 10).replaceAll("-", "") ;
+		//处理存放条图片的文件夹
+    	File f = new File("imageView");
+    	if(!f.exists()){
+    		f.mkdir();
+    	}
+    	//保存图片文件的位置信息
+    	Queue<String> imageLocation = new LinkedList<String>();
+    	//图片正则表达式
+		String imageReg = "(http://img[0-9]{1}.cache.netease.com/cnews/[0-9]{4}/[0-9]{2}/[0-9]{1,2}/(.*?).((jpg)|(png)|(jpeg)))|(http://img[0-9]{1}.cache.netease.com/catchpic/(.*?)/(.*?)/(.*?).((jpg)|(png)|(jpeg)))";
+		Pattern newsImage = Pattern.compile(imageReg);
+		Matcher imageMatcher = newsImage.matcher(bufHtml);
+		//处理图片
+		int i = 1 ;      //本条新闻图片的个数
+		while(imageMatcher.find()){
+			String bufUrl = imageMatcher.group();
+			System.out.println(bufUrl);
+			File fileBuf;
+//			imageMatcher.group();
+			String imageNameSuffix = bufUrl.substring(bufUrl.lastIndexOf("."), bufUrl.length());  //图片后缀名
+			try{
+				URL uri = new URL(bufUrl);  
+			
+				InputStream in = uri.openStream();
+				FileOutputStream fo;
+				if(imageNumber < 9){
+					fileBuf = new File(".\\imageView",imageNameTime+"000"+imageNumber+"000"+i+imageNameSuffix);
+					fo = new FileOutputStream(fileBuf); 
+					imageLocation.offer(fileBuf.getAbsolutePath());
+				}else if(imageNumber < 99){
+					fileBuf = new File(".\\imageView",imageNameTime+"00"+imageNumber+"000"+i+imageNameSuffix);
+					fo = new FileOutputStream(fileBuf);
+					imageLocation.offer(fileBuf.getAbsolutePath());
+            
+				}else if(imageNumber < 999){
+					fileBuf = new File(".\\imageView",imageNameTime+"0"+imageNumber+"000"+i+imageNameSuffix);
+					fo = new FileOutputStream(fileBuf);
+					imageLocation.offer(fileBuf.getAbsolutePath());
+  
+				}else{
+					fileBuf = new File(".\\imageView",imageNameTime+imageNumber+"000"+i+imageNameSuffix);
+					fo = new FileOutputStream(fileBuf);
+					imageLocation.offer(fileBuf.getAbsolutePath());
+				}
+            
+				byte[] buf = new byte[1024];  
+				int length = 0;  
+//           	 System.out.println("开始下载:" + url);  
+				while ((length = in.read(buf, 0, buf.length)) != -1) {  
+					fo.write(buf, 0, length);  
+				}  
+				in.close();  
+				fo.close();  
+//          	  System.out.println(imageName + "下载完成"); 
+			}catch(Exception e){
+				System.out.println("亲，图片下载失败！！");
+				System.out.println("请检查网络是否正常！");
+			}
+			i ++;
+			
+        }  
+		//如果该条新闻没有图片则图片的编号不再增加
+		if(!imageLocation.isEmpty())
+			imageNumber ++;
+		return imageLocation.toString();
 	}
 	//新闻时间
 	@Override

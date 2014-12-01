@@ -1,6 +1,8 @@
 package com.uestc.spider.www;
 
+import java.io.File;
 import java.net.UnknownHostException;
+import java.util.Calendar;
 
 /*
  * 1.先把华西都市报趴下来
@@ -25,7 +27,10 @@ public class Test {
 ////		if(s.contains("　"))
 //			s1 = s1.replaceAll("　+|\\s*", "");
 //		System.out.println(s1);
-		
-		System.out.println("ss"+(1+1)+"www");
+//		File fileBuf = new File(".\\image","iloveu.jpg");
+//		System.out.println(fileBuf.getAbsolutePath());
+//		System.out.println("ss"+(1+1)+"www");
+		Calendar now = Calendar.getInstance();
+		System.out.println(now.get(Calendar.DATE));
 	}
 }
