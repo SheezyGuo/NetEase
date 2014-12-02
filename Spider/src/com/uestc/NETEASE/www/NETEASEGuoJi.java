@@ -1,4 +1,4 @@
-package com.uestc.spider.www;
+package com.uestc.NETEASE.www;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,70 +22,68 @@ import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
-public class NETEASEView implements NETEASE{
+import com.uestc.spider.www.CRUT;
+
+public class NETEASEGuoJi implements NETEASE{
 
 	private String DBName ;   //sql name
 	private String DBTable ;  // collections name
 	private String ENCODE ;   //html encode gb2312
-	
+		
 	//新闻主题links的正则表达式
-	private String newsThemeLinksReg ; 
-				
+//	private String newsThemeLinksReg ; //= "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
+			
 	//新闻内容links的正则表达式
-	private String newsContentLinksReg ; 
+	private String newsContentLinksReg ; //= "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html#f=dlist";
+		
 	//新闻主题link
 	private String theme ;
 	//图片计数
 	private int imageNumber = 1 ;
-
 	
-	public NETEASEView(){
+	public NETEASEGuoJi(){
 	}
 	
-	public void getNETEASEViewNews(){
-		/*初始化各个标签等 编码 gb2312
-		 * 
-		 * */
-		ENCODE = "GB2312";
-		DBName = "NE";   //数据库名称
-		DBTable = "view";   //表名
-		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
-		String[] newsContentLabel = new String[]{"class" ,"feed-text"};  //新闻内容标签 class="feed-text"
-		String[] newsTimeLabel = new String[]{"style","float:left;"};   //新闻时间"class","info"  
-		String[] newsSourceLabel =new String[]{"class","path","网易新闻-深度报道"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
-		String[] newsCategroyLabel = new String[]{"class","path"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
-		CRUT crut = new CRUT(DBName,DBTable);
+	public void getNETEASEGuoJiNews(){
+		DBName = "N";
+		DBTable = "gj";
+		ENCODE = "gb2312";
+		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
+		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
+		String[] newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
+		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-国际新闻"}; //（3个参数）新闻来源 同新闻时间
+		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // 属性
 		
-		theme = "http://view.163.com/";
+		CRUT crut = new CRUT(DBName ,DBTable);
+		//国际新闻 首页链接
+		theme = "http://news.163.com/special/00011K6L/rss_gj.xml";
 		
-		//内容正则表达式http://view.163.com/14/1125/11/ABT5R5GF00012Q9L.html
-		newsContentLinksReg = "http://view.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html"; //内容正则表达式
+		//新闻内容links的正则表达式 
+		newsContentLinksReg = "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html";
 		
-		String focusHtml = findContentHtml(theme);
-		Queue<String> visitedLinks = new LinkedList<String>();
+		String guoJiHtml = findContentHtml(theme);
+		
 		//匹配获得内容的links
 		Pattern newPage = Pattern.compile(newsContentLinksReg);
         
-        Matcher themeMatcher = newPage.matcher(focusHtml);
-//        int i = 0;
+        Matcher themeMatcher = newPage.matcher(guoJiHtml);
+        int i = 0;
         while(themeMatcher.find()){
-//        	i++;
+        	i++;
         	String url = themeMatcher.group();
-        	if(!visitedLinks.contains(url)){
-        		String html = findContentHtml(url);
-//        		System.out.println(url);
-//        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
-//        		System.out.println(findNewsTime(html,newsTimeLabel));
-        		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
-        		visitedLinks.add(url);
-        	}
+        	String html = findContentHtml(url);
+        	System.out.println(url);
+//        	System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
+//        	System.out.println(findNewsContent(html,newsContentLabel));
+        	crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel) , findNewsSource(html,newsSourceLabel),
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
         	
         }
-//        System.out.println(i);
+        System.out.println(i);
 	
 	
 	}
+	
 	@Override
 	public Queue<String> findThemeLinks(String themeLink ,String themeLinkReg) {
 		
@@ -332,7 +330,7 @@ public class NETEASEView implements NETEASE{
 		//获取图片时间，为命名服务
 		imageNameTime = findNewsTime(html,label).substring(0, 10).replaceAll("-", "") ;
 		//处理存放条图片的文件夹
-    	File f = new File("imageView");
+    	File f = new File("imageGuoJi");
     	if(!f.exists()){
     		f.mkdir();
     	}
@@ -356,21 +354,21 @@ public class NETEASEView implements NETEASE{
 				InputStream in = uri.openStream();
 				FileOutputStream fo;
 				if(imageNumber < 9){
-					fileBuf = new File(".\\imageView",imageNameTime+"000"+imageNumber+"000"+i+imageNameSuffix);
+					fileBuf = new File(".\\imageGuoJi",imageNameTime+"000"+imageNumber+"000"+i+imageNameSuffix);
 					fo = new FileOutputStream(fileBuf); 
 					imageLocation.offer(fileBuf.getAbsolutePath());
 				}else if(imageNumber < 99){
-					fileBuf = new File(".\\imageView",imageNameTime+"00"+imageNumber+"000"+i+imageNameSuffix);
+					fileBuf = new File(".\\imageGuoJi",imageNameTime+"00"+imageNumber+"000"+i+imageNameSuffix);
 					fo = new FileOutputStream(fileBuf);
 					imageLocation.offer(fileBuf.getAbsolutePath());
             
 				}else if(imageNumber < 999){
-					fileBuf = new File(".\\imageView",imageNameTime+"0"+imageNumber+"000"+i+imageNameSuffix);
+					fileBuf = new File(".\\imageGuoJi",imageNameTime+"0"+imageNumber+"000"+i+imageNameSuffix);
 					fo = new FileOutputStream(fileBuf);
 					imageLocation.offer(fileBuf.getAbsolutePath());
   
 				}else{
-					fileBuf = new File(".\\imageView",imageNameTime+imageNumber+"000"+i+imageNameSuffix);
+					fileBuf = new File(".\\imageGuoJi",imageNameTime+imageNumber+"000"+i+imageNameSuffix);
 					fo = new FileOutputStream(fileBuf);
 					imageLocation.offer(fileBuf.getAbsolutePath());
 				}
@@ -477,8 +475,9 @@ public class NETEASEView implements NETEASE{
 		}
 		return categroyBuf;
 	}
+	
 	public static void main(String[] args){
-		NETEASEView test = new NETEASEView();
-		test.getNETEASEViewNews();
+		NETEASEGuoJi test = new NETEASEGuoJi();
+		test.getNETEASEGuoJiNews();
 	}
 }

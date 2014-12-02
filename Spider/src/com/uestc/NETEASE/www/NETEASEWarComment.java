@@ -1,4 +1,4 @@
-package com.uestc.spider.www;
+package com.uestc.NETEASE.www;
 
 public class NETEASEWarComment {
 

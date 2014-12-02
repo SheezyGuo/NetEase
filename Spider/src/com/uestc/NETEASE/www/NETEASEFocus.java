@@ -1,4 +1,4 @@
-package com.uestc.spider.www;
+package com.uestc.NETEASE.www;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +21,8 @@ import org.htmlparser.filters.HasAttributeFilter;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
+
+import com.uestc.spider.www.CRUT;
 
 public class NETEASEFocus implements NETEASE{
 
@@ -52,7 +54,7 @@ public class NETEASEFocus implements NETEASE{
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		String[] newsTimeLabel = new String[]{"style","float:left;"};   //新闻时间"class","info"  
-		String[] newsSourceLabel =new String[]{"class","path","网易新闻-深度报道"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
+		String[] newsSourceLabel =new String[]{"style","float:left;","网易新闻-深度报道"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
 		String[] newsCategroyLabel = new String[]{"class","path"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
 		CRUT crut = new CRUT(DBName,DBTable);
 		
@@ -67,13 +69,14 @@ public class NETEASEFocus implements NETEASE{
 		Pattern newPage = Pattern.compile(newsContentLinksReg);
         
         Matcher themeMatcher = newPage.matcher(focusHtml);
-//        int i = 0;
+        int i = 0;
         while(themeMatcher.find()){
-//        	i++;
+        	i++;
         	String url = themeMatcher.group();
         	if(!visitedLinks.contains(url)){
         		String html = findContentHtml(url);
         		System.out.println(url);
+//        		System.out.println(findNewsOriginalSource(html,newsSourceLabel));
 //        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
 //        		System.out.println(findNewsTime(html,newsTimeLabel));
         		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
@@ -82,7 +85,7 @@ public class NETEASEFocus implements NETEASE{
         	}
         	
         }
-//        System.out.println(i);
+        System.out.println(i);
 	
 	
 	}
@@ -432,9 +435,9 @@ public class NETEASEFocus implements NETEASE{
 		}else{
 			sourceBuf = HandleHtml(html , label[0],label[1]);
 		}
-		
-		if(sourceBuf.length() >29)
-			sourceBuf = sourceBuf.substring(29, sourceBuf.length());  //根据不同新闻 不同处理
+		if(sourceBuf.contains("来源:")&&sourceBuf.contains("　有")){
+			sourceBuf = sourceBuf.substring(sourceBuf.indexOf("来源:"), sourceBuf.indexOf("　有"));
+		}
 		if(label.length == 3 && (!label[2].equals("")))
 			return label[2]+"-"+sourceBuf;
 		else

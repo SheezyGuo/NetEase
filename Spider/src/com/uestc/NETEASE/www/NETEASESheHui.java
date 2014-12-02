@@ -1,4 +1,4 @@
-package com.uestc.spider.www;
+package com.uestc.NETEASE.www;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,58 +22,46 @@ import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
-/*
- * 获取网易国内新闻
- * 
- * 每个模块对应一个单独的类
- * 
- * 方便操作以及后期维护吧。。。
- * @auther cg
- * 
- * */
-public class NETEASEGuoNei implements NETEASE{
-	
+import com.uestc.spider.www.CRUT;
+
+public class NETEASESheHui implements NETEASE{
+
 	private String DBName ;   //sql name
 	private String DBTable ;  // collections name
-	private String ENCODE ;   //html encode gb2312
-		
+	private String ENCODE ;   //html encode gb2312	
 	//新闻主题links的正则表达式
-	private String newsThemeLinksReg ; //= "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
+	private String newsThemeLinksReg ; 
 			
 	//新闻内容links的正则表达式
-	private String newsContentLinksReg ; //= "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html#f=dlist";
+	private String newsContentLinksReg ; 
 		
 	//新闻主题link
 	private String theme ;
+	//图片计数
+	private int imageNumber = 1 ;
 	
-	
-	//图片个数
-	private int imageNumber = 1;
-//	//评论正则
-//	private String commentReg ;  //= "http://comment.news.163.com/news3_bbs/";
-	
-	public NETEASEGuoNei(){
+	public NETEASESheHui(){
 	}
 	
-	public void getNETEASEGuoNeiNews(){
+	public void getNETEASESheHuiNews(){
 		DBName = "N";
-		DBTable = "gn";
+		DBTable = "sh";
 		ENCODE = "gb2312";
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
 		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
 		String[] newsTimeLabel = new String[]{"class","ep-time-soure cDGray"};   //新闻时间"class","ep-time-soure cDGray"  
-		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-国内新闻"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
-		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
+		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-社会新闻"}; //（3个参数）新闻来源 同新闻时间
+		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // 属性
 		
 		CRUT crut = new CRUT(DBName ,DBTable);
 		//国内新闻 首页链接
-		theme = "http://news.163.com/domestic/";
+		theme = "http://news.163.com/shehui/";
 		
 		//新闻主题links的正则表达式
-		newsThemeLinksReg = "http://news.163.com/special/0001124J/guoneinews_[0-9]{1,2}.html#headList";
+		newsThemeLinksReg = "http://news.163.com/special/00011229/shehuinews_[0-9]{1,2}.html#headList";
 		
-		//新闻内容links的正则表达式 (http://view.163.com/14/1119/10/ABDHAKC500012Q9L.html#f=dlist)
-		newsContentLinksReg = "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html#f=dlist";
+		//新闻内容links的正则表达式 
+		newsContentLinksReg = "http://news.163.com/[0-9]{2}/[0-9]{4}/[0-9]{2}/(.*?).html#f=s((list)|(focus))";
 		
 		int state ;
 		try{
@@ -93,22 +81,21 @@ public class NETEASEGuoNei implements NETEASE{
 		if(state != 200 && state != 201){
 			return;
 		}
-		//保存国内新闻主题links
-		Queue<String> guoNeiNewsTheme = new LinkedList<String>();
-		guoNeiNewsTheme = findThemeLinks(theme,newsThemeLinksReg);
+		//保存社会新闻主题links
+		Queue<String> sheHuiNewsTheme = new LinkedList<String>();
+		sheHuiNewsTheme = findThemeLinks(theme,newsThemeLinksReg);
 //		System.out.println(guoNeiNewsTheme);
 		
-		//获取国内新闻内容links
-		Queue<String>guoNeiNewsContent = new LinkedList<String>();
-		guoNeiNewsContent = findContentLinks(guoNeiNewsTheme,newsContentLinksReg);
+		//获取社会新闻内容links
+		Queue<String>sheHuiNewsContent = new LinkedList<String>();
+		sheHuiNewsContent = findContentLinks(sheHuiNewsTheme,newsContentLinksReg);
 //		System.out.println(guoNeiNewsContent);
 		//获取每个新闻网页的html
 		int i = 0;
-		while(!guoNeiNewsContent.isEmpty()){
-			String url = guoNeiNewsContent.poll();
+		while(!sheHuiNewsContent.isEmpty()){
+			String url = sheHuiNewsContent.poll();
 			String html = findContentHtml(url);  //获取新闻的html
 			System.out.println(url);
-//			System.out.println(findNewsImages(html,newsTimeLabel));
 //			System.out.println(html);
 			i++;
 //			System.out.println(findNewsComment(url));
@@ -354,83 +341,82 @@ public class NETEASEGuoNei implements NETEASE{
 		}
 		return contentBuf;
 	}
-	//处理图片，使用时间label
 	@Override
 	public String findNewsImages(String html , String[] label) {
 		// TODO Auto-generated method stub
-		String bufHtml = "";        //辅助
-		String imageNameTime  = "";
-//		Queue<String> imageUrl = new LinkedList<String>();  //保存获取的图片链接
-		if(html.contains("<div id=\"endText\">")&&html.contains("<!-- 分页 -->"))
-			bufHtml = html.substring(html.indexOf("<div id=\"endText\">"), html.indexOf("<!-- 分页 -->"));
-		else 
-			return null;
-		//获取图片时间，为命名服务
-		imageNameTime = findNewsTime(html,label).substring(0, 10).replaceAll("-", "") ;
-		//处理存放条图片的文件夹
-    	File f = new File("imageGuoNei");
-    	if(!f.exists()){
-    		f.mkdir();
-    	}
-    	//保存图片文件的位置信息
-    	Queue<String> imageLocation = new LinkedList<String>();
-    	//图片正则表达式
-		String imageReg = "(http://img[0-9]{1}.cache.netease.com/cnews/[0-9]{4}/[0-9]{2}/[0-9]{1,2}/(.*?).((jpg)|(png)|(jpeg)))|(http://img[0-9]{1}.cache.netease.com/catchpic/(.*?)/(.*?)/(.*?).((jpg)|(png)|(jpeg)))";
-		Pattern newsImage = Pattern.compile(imageReg);
-		Matcher imageMatcher = newsImage.matcher(bufHtml);
-		//处理图片
-		int i = 1 ;      //本条新闻图片的个数
-		while(imageMatcher.find()){
-			String bufUrl = imageMatcher.group();
-			System.out.println(bufUrl);
-			File fileBuf;
-//			imageMatcher.group();
-			String imageNameSuffix = bufUrl.substring(bufUrl.lastIndexOf("."), bufUrl.length());  //图片后缀名
-			try{
-				URL uri = new URL(bufUrl);  
-			
-				InputStream in = uri.openStream();
-				FileOutputStream fo;
-				if(imageNumber < 9){
-					fileBuf = new File(".\\imageGuoNei",imageNameTime+"000"+imageNumber+"000"+i+imageNameSuffix);
-					fo = new FileOutputStream(fileBuf); 
-					imageLocation.offer(fileBuf.getAbsolutePath());
-				}else if(imageNumber < 99){
-					fileBuf = new File(".\\imageGuoNei",imageNameTime+"00"+imageNumber+"000"+i+imageNameSuffix);
-					fo = new FileOutputStream(fileBuf);
-					imageLocation.offer(fileBuf.getAbsolutePath());
-            
-				}else if(imageNumber < 999){
-					fileBuf = new File(".\\imageGuoNei",imageNameTime+"0"+imageNumber+"000"+i+imageNameSuffix);
-					fo = new FileOutputStream(fileBuf);
-					imageLocation.offer(fileBuf.getAbsolutePath());
-  
-				}else{
-					fileBuf = new File(".\\imageGuoNei",imageNameTime+imageNumber+"000"+i+imageNameSuffix);
-					fo = new FileOutputStream(fileBuf);
-					imageLocation.offer(fileBuf.getAbsolutePath());
+			String bufHtml = "";        //辅助
+			String imageNameTime  = "";
+//			Queue<String> imageUrl = new LinkedList<String>();  //保存获取的图片链接
+			if(html.contains("<div id=\"endText\">")&&html.contains("<!-- 分页 -->"))
+				bufHtml = html.substring(html.indexOf("<div id=\"endText\">"), html.indexOf("<!-- 分页 -->"));
+			else 
+				return null;
+			//获取图片时间，为命名服务
+			imageNameTime = findNewsTime(html,label).substring(0, 10).replaceAll("-", "") ;
+			//处理存放条图片的文件夹
+		    File f = new File("imageSheHui");
+		   	if(!f.exists()){
+		    	f.mkdir();
+		   	}
+		   	//保存图片文件的位置信息
+		   	Queue<String> imageLocation = new LinkedList<String>();
+		   	//图片正则表达式
+			String imageReg = "(http://img[0-9]{1}.cache.netease.com/cnews/[0-9]{4}/[0-9]{2}/[0-9]{1,2}/(.*?).((jpg)|(png)|(jpeg)))|(http://img[0-9]{1}.cache.netease.com/catchpic/(.*?)/(.*?)/(.*?).((jpg)|(png)|(jpeg)))";
+			Pattern newsImage = Pattern.compile(imageReg);
+			Matcher imageMatcher = newsImage.matcher(bufHtml);
+			//处理图片
+			int i = 1 ;      //本条新闻图片的个数
+			while(imageMatcher.find()){
+				String bufUrl = imageMatcher.group();
+				System.out.println(bufUrl);
+				File fileBuf;
+//				imageMatcher.group();
+				String imageNameSuffix = bufUrl.substring(bufUrl.lastIndexOf("."), bufUrl.length());  //图片后缀名
+				try{
+					URL uri = new URL(bufUrl);  
+					
+					InputStream in = uri.openStream();
+					FileOutputStream fo;
+					if(imageNumber < 9){
+						fileBuf = new File(".\\imageSheHui",imageNameTime+"000"+imageNumber+"000"+i+imageNameSuffix);
+						fo = new FileOutputStream(fileBuf); 
+						imageLocation.offer(fileBuf.getAbsolutePath());
+					}else if(imageNumber < 99){
+						fileBuf = new File(".\\imageSheHui",imageNameTime+"00"+imageNumber+"000"+i+imageNameSuffix);
+						fo = new FileOutputStream(fileBuf);
+						imageLocation.offer(fileBuf.getAbsolutePath());
+		            
+					}else if(imageNumber < 999){
+						fileBuf = new File(".\\imageSheHui",imageNameTime+"0"+imageNumber+"000"+i+imageNameSuffix);
+						fo = new FileOutputStream(fileBuf);
+						imageLocation.offer(fileBuf.getAbsolutePath());
+		  
+					}else{
+						fileBuf = new File(".\\imageSheHui",imageNameTime+imageNumber+"000"+i+imageNameSuffix);
+						fo = new FileOutputStream(fileBuf);
+						imageLocation.offer(fileBuf.getAbsolutePath());
+					}
+		           
+					byte[] buf = new byte[1024];  
+					int length = 0;  
+//		          	 System.out.println("开始下载:" + url);  
+					while ((length = in.read(buf, 0, buf.length)) != -1) {  
+						fo.write(buf, 0, length);  
+					}  
+					in.close();  
+					fo.close();  
+//		            System.out.println(imageName + "下载完成"); 
+				}catch(Exception e){
+					System.out.println("亲，图片下载失败！！");
+					System.out.println("请检查网络是否正常！");
 				}
-            
-				byte[] buf = new byte[1024];  
-				int length = 0;  
-//           	 System.out.println("开始下载:" + url);  
-				while ((length = in.read(buf, 0, buf.length)) != -1) {  
-					fo.write(buf, 0, length);  
-				}  
-				in.close();  
-				fo.close();  
-//          	  System.out.println(imageName + "下载完成"); 
-			}catch(Exception e){
-				System.out.println("亲，图片下载失败！！");
-				System.out.println("请检查网络是否正常！");
-			}
-			i ++;
-			
-        }  
-		//如果该条新闻没有图片则图片的编号不再增加
-		if(!imageLocation.isEmpty())
-			imageNumber ++;
-		return imageLocation.toString();
+				i ++;
+					
+		       }  
+			//如果该条新闻没有图片则图片的编号不再增加
+			if(!imageLocation.isEmpty())
+				imageNumber ++;
+			return imageLocation.toString();
 	}
 	//新闻时间
 	@Override
@@ -513,184 +499,9 @@ public class NETEASEGuoNei implements NETEASE{
 		}
 		return categroyBuf;
 	}
-//	//获取新闻评论
-//	public String findNewsComment(String url ,String html ,String[] label) {
-//		
-//		/*
-//		 * 先判断新闻类型 再做决定
-//		 * */
-//		String categroyBuf ="";
-//		if(label[1].equals("")){
-//			categroyBuf = HandleHtml(html , label[0]);
-//		}else{
-//			categroyBuf = HandleHtml(html , label[0],label[1]);
-//		}
-//		if(categroyBuf.contains("&gt;")){
-//			categroyBuf = categroyBuf.replaceAll("&gt;", "");
-//			if(categroyBuf.contains("新闻中心")){
-//				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻中心")+5, categroyBuf.indexOf("正文")-1);
-//			}else if(categroyBuf.contains("新闻频道")){
-//				categroyBuf = categroyBuf.substring(categroyBuf.indexOf("新闻频道")+5, categroyBuf.length());
-//			}
-//			
-//			categroyBuf = categroyBuf.replaceAll("\\s+", "");
-//		}
-////		//如果网页失效 直接返回null
-////		if(categroyBuf == ""){ 
-////			System.out.println("纳尼！！！");
-////			return null;
-////		}
-//		//评论保存结果
-//		String result = null;
-//		
-//		//评论url
-//		String commentUrl = null;
-//		// TODO Auto-generated method stubhttp://comment.news.163.com/news_guoji2_bbs/ABQ1KHA20001121M.html
-//		String[] s1 = {"http://comment.news.163.com/news_shehui7_bbs/","http://comment.news.163.com/news_guonei8_bbs/","http://comment.news.163.com/news3_bbs/","http://comment.news.163.com/news_guoji2_bbs/","http://comment.news.163.com/news_junshi_bbs/"};
-//		String s2 = ".html";
-//		String s3 = url.substring(url.lastIndexOf("/")+1, url.lastIndexOf("."))+s2;
-//		if(categroyBuf.equals("社会新闻")){
-//			commentUrl = s1[0] + s3;
-//		}else if(categroyBuf.equals("易奇闻")){
-//			commentUrl = s1[0] + s3;
-//		}else if(categroyBuf.equals("国内新闻")){
-//			commentUrl = s1[1] + s3 ;
-//		}else if(categroyBuf.equals("国际新闻")){
-//			commentUrl = s1[3] + s3 ;
-//		}else if(categroyBuf.equals("军事")){
-//			commentUrl = s1[4] + s3 ;
-//		}else if(categroyBuf.equals("深度报道")){
-//			commentUrl = s1[0] + s3 ;
-//		}else if(categroyBuf.equals("评论频道")){
-//			commentUrl = s1[2] + s3 ;
-//		}else
-//			commentUrl = s1[2] + s3 ;
-//		result = handleComment(commentUrl);
-//		if(result == null && categroyBuf.equals("军事")){
-//			commentUrl = null;
-//			commentUrl = s1[2] +s3 ;
-//			result = handleComment(commentUrl);
-//		}
-//		
-//		if(result == null && url.contains("war.163.com")){
-//			commentUrl = null;
-//			commentUrl = s1[4] + s3 ;
-//			result = handleComment(commentUrl);
-//		}
-//		
-//		return result;
-//	}
-//	
-//	//烦人的评论处理
-//	public String handleComment(String commentUrl){
-//		
-//		StringBuffer result = new StringBuffer();
-//		
-//		URL link = null;
-//		
-//		try {
-//			link = new URL(commentUrl);
-//		} catch (MalformedURLException e1) {
-//			// TODO Auto-generated catch block
-////			e1.printStackTrace();
-//			System.out.println("what is the fuck!!!");
-//			return null;
-//		}
-//					
-//        WebClient wc=new WebClient();
-//        WebRequest request=new WebRequest(link); 
-//        request.setCharset(ENCODE);
-////        其他报文头字段可以根据需要添加
-//        wc.getCookieManager().setCookiesEnabled(true);//开启cookie管理
-//        wc.getOptions().setJavaScriptEnabled(true);//开启js解析。对于变态网页，这个是必须的
-//        wc.getOptions().setCssEnabled(true);//开启css解析。对于变态网页，这个是必须的。
-//        wc.getOptions().setThrowExceptionOnFailingStatusCode(false);
-//        wc.getOptions().setThrowExceptionOnScriptError(false);
-//        wc.getOptions().setTimeout(10000);
-//        //准备工作已经做好了
-//        HtmlPage page= null;
-//        try {
-//			page = wc.getPage(request);
-//		} catch (FailingHttpStatusCodeException e) {
-//			// TODO Auto-generated catch block
-////			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-////			e.printStackTrace();
-//		}
-//        if(page==null)
-//        {
-//            System.out.println("采集 "+commentUrl+" 失败!!!");
-//            return null;
-//        }
-//        String content=page.asText();//网页内容保存在content里
-//        if(content==null)
-//        {
-//            System.out.println("采集 "+commentUrl+" 失败!!!");
-//            return null;
-//        }else;
-//        	//System.out.println(content);
-//        if(!content.contains("去跟贴广场看看")){
-//        	System.out.println("居然没有 去跟帖广场看看"+ commentUrl);
-//        	return null;
-//        	
-//        }
-//        String ss = content.substring(content.indexOf("去跟贴广场看看")+7, content.indexOf("跟贴用户自律公约"));
-////        System.out.println(ss);
-//        result = new StringBuffer(ss);
-//        ss = null; 
-//        content = content.substring(0, content.indexOf("文明社会，从理性发贴开始。谢绝地域攻击。"));
-//        content = content.replaceAll("\\s+", "");
-//        String commentReg = "发表(.*?)顶";
-////        String source = "发表哈哈哈啊哈顶顶顶顶发表家具啊姐姐顶发表哈哈哈顶发表。。。。顶发表；；；；顶发表【【】。；；；顶发表。。、；匹配顶发表(.*?)顶";
-//        Pattern newPage = Pattern.compile(commentReg);
-//        
-//        Matcher themeMatcher = newPage.matcher(content);
-//        while(themeMatcher.find()){
-//        	String mm = themeMatcher.group();
-//        	mm = mm.replaceAll("发表", "");
-//        	mm = mm.replaceAll("顶", "");
-////        	System.out.println(mm);
-//        	result = result.append(mm).append("☆");
-//        	mm = null;
-//        }
-//		commentReg = null ;
-//		content = null;
-//		return result.toString();
-//	}
-	
 	
 	public static void main(String[] args){
-		NETEASEGuoNei test = new NETEASEGuoNei();
-		test.getNETEASEGuoNeiNews();
+		NETEASESheHui test = new NETEASESheHui();
+		test.getNETEASESheHuiNews();
 	}
-}
-
-class TaskThreadPoolForNETEASE implements Runnable{
-	
-	public String dbtable1;
-	public TaskThreadPoolForNETEASE(String dbtable1){
-		this.dbtable1 = dbtable1;
-	}
-	
-	@Override
-	public void run() {
-//		// TODO Auto-generated method stub
-//		NETEASE threadNETEASE = new NETEASEGuoNei(dbtable1);
-//		if(dbtable1.equals("guonei"))
-//			threadNETEASE.getGuoNeiNews();
-//		else if(dbtable1.equals("guoji"))
-//			threadNETEASE.getGuoJiNews();
-//		else if(dbtable1.equals("shehui"))
-//			threadNETEASE.getSheHuiNews();
-//		else if(dbtable1.equals("focus"))
-//			threadNETEASE.getFocusNews();
-//		else if(dbtable1.equals("war"))
-//			threadNETEASE.getWarNews();
-//		else if(dbtable1.equals("view"))
-//			threadNETEASE.getViewNews();
-//		else;
-//		threadNETEASE = null;
-	}
-	
 }
