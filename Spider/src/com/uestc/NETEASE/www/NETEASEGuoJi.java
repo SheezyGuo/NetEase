@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -38,6 +39,12 @@ public class NETEASEGuoJi implements NETEASE{
 		
 	//新闻主题link
 	private String theme ;
+	//downloadTime
+	private String downloadTime;
+	Calendar today = Calendar.getInstance();
+	private int year = today.get(Calendar.YEAR);
+	private int month = today.get(Calendar.MONTH)+1;
+	private int date = today.get(Calendar.DATE);		
 	//图片计数
 	private int imageNumber = 1 ;
 	
@@ -45,7 +52,7 @@ public class NETEASEGuoJi implements NETEASE{
 	}
 	
 	public void getNETEASEGuoJiNews(){
-		DBName = "N";
+		DBName = "IAMNETEASENEWS";
 		DBTable = "gj";
 		ENCODE = "gb2312";
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
@@ -67,6 +74,15 @@ public class NETEASEGuoJi implements NETEASE{
 		Pattern newPage = Pattern.compile(newsContentLinksReg);
         
         Matcher themeMatcher = newPage.matcher(guoJiHtml);
+      //计算获取新闻的时间
+  		if( month < 10)
+  			downloadTime = year+"0"+month;
+  		else 
+  			downloadTime = year+""+month;
+  		if(date < 10)
+  			downloadTime += "0" + date;
+  		else 
+  			downloadTime += date ;
         int i = 0;
         while(themeMatcher.find()){
         	i++;
@@ -76,7 +92,7 @@ public class NETEASEGuoJi implements NETEASE{
 //        	System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
 //        	System.out.println(findNewsContent(html,newsContentLabel));
         	crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel) , findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel),downloadTime);
         	
         }
         System.out.println(i);

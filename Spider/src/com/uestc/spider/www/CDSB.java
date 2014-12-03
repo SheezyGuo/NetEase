@@ -221,7 +221,7 @@ public class CDSB implements Runnable {
 	   originalTitle = handle(html,bqTitle[0]); //,bqTitle[1]
 	 else
 	   originalTitle = handle(html,bqTitle[0],bqTitle[1]);
-	   System.out.println(originalTitle);
+//	   System.out.println(originalTitle);
 	   return originalTitle;
    }
  /*
@@ -245,7 +245,7 @@ public class CDSB implements Runnable {
 		 title = title.replace(bqBuf, "");
 	 if(url.contains("newspaper.jfdaily.com/xwcb"))  //新闻晨报
 		 title = title.substring(0, title.lastIndexOf(" "));
-	 System.out.println(title);
+//	 System.out.println(title);
 	 return title;
  }
  
@@ -277,7 +277,7 @@ public class CDSB implements Runnable {
 		   content = content.replaceAll("&nbsp;","\n");
 	   };
 //	   content = content.replaceAll("\\n", "");
-	   System.out.println(content);
+//	   System.out.println(content);
 	   return content;
    }
  /*
@@ -296,7 +296,7 @@ public class CDSB implements Runnable {
 	   StringBuffer symbol = new StringBuffer(";");
 	   GetImage image = new GetImage(photoUrl,imageUrl,imageScr,imageBuf);    //图片命名正则表达式
 	   image.fileName = handleTime(html).replaceAll("[^0-9]", "")+ nameSource;
-	   System.out.println(image.fileName);
+//	   System.out.println(image.fileName);
 	   Vector<String> dateSourceNumNum = image.getImage(html); 
 	   for(String s: dateSourceNumNum){
 		   buf = buf.append(load).append(new StringBuffer(s)).append(symbol);
@@ -330,7 +330,7 @@ public class CDSB implements Runnable {
 	   else if(url.contains("http://gzdaily.dayoo.com/html")){
 		   time = time.substring(0, 8);
 		}else;
-	   System.out.println(time);
+//	   System.out.println(time);
 	   return time;
    }
   /*
@@ -390,7 +390,7 @@ public class CDSB implements Runnable {
 	   if(categroy.contains("："))
 		   categroy = categroy.substring(categroy.indexOf("：")+1, categroy.length());
 	   categroy = categroy.replaceAll("\\s*", "");
-	   System.out.println(categroy);
+//	   System.out.println(categroy);
 	   return categroy;        //.substring(categroy.lastIndexOf("：")+1,categroy.length());
 	   
    }
@@ -418,7 +418,7 @@ public class CDSB implements Runnable {
 //	   }
 	   
 	   originalCategroy = originalCategroy.replaceAll("\\s*", "");
-	   System.out.println(originalCategroy);
+//	   System.out.println(originalCategroy);
 	   
 	   return originalCategroy;
    }

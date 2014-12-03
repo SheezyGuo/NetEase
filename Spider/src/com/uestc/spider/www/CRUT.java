@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.Queue;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -90,26 +91,58 @@ public class CRUT {
 
 		
 	}
-	//重载函数 新闻评论栏 
-	public void add(String url,String commentNumber,String commentUrl,String[] comment){
-		
-		int lenth = 0 ;
+	//重载 加入获取时间
+	public void add(String title,String originalTitle,String titleContent,
+			String time ,String content,
+			String newSource,String originalSource,
+			String category,String originalCategroy,
+			String url ,String image,String downloadtime){
 		DBObject user = new BasicDBObject();
-		//先判断是否存在该条评论
-		if(!query("Url",url)){ //如果不存在
-			//三个标题：标题，内容标题，原始标题
-			user.put("Url", url);
-			user.put("CommentUrl",commentUrl);
-			user.put("CommentNumber", commentNumber);
-			lenth = comment.length;
-			for(int i = 0 ; i < lenth ; i++ ){
-				user.put("Comment-"+i, comment[i]);
-			}
-		}else{
-			
-		}
+		//三个标题：标题，内容标题，原始标题
+		user.put("Title", title);
+		user.put("OriginalTitle", originalTitle);
+		user.put("TitleContent", titleContent);
+		
+		//发布时间
+		user.put("Time", time);
+		//新闻内容
+		user.put("Content",content);
+		//两个新闻来源 ：新闻来源，新闻原始来源
+		user.put("NewSource",newSource);
+		user.put("OriginalSource", originalSource);
+		//两个新闻分类 ：类别 新闻原始类别
+		user.put("Category", category);
+		user.put("OriginalCategroy", originalCategroy);
+		//新闻网址
+		user.put("Url", url);
+		//新闻图片
+		user.put("image",image);
+		user.put("downloadTime",downloadtime);
 
 		users.insert(user);
+
+		
+	}
+	//重载函数 新闻评论栏 
+	public void add(String url,String comment,String commentUrl){
+		
+		DBObject user = new BasicDBObject();
+		//先判断是否存在该条评论
+//		if(!query("Url",url)){ //如果不存在
+		//三个标题：标题，内容标题，原始标题
+		user.put("Url", url);
+		user.put("CommentUrl",commentUrl);
+		if(comment == null || comment == "")
+			user.put("CommentNumber", 0);
+		else if(comment.contains("\n")){
+			user.put("CommentNumber", comment.substring(0, comment.indexOf("\n")));
+		}
+			
+
+		user.put("Comment", comment);
+	
+
+	     users.insert(user);
 
 	}
 	

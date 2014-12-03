@@ -40,6 +40,12 @@ public class NETEASEWar implements NETEASE{
 		
 	//新闻主题link
 	private String theme ;
+	//downloadTime
+	private String downloadTime;
+	Calendar today = Calendar.getInstance();
+	private int year = today.get(Calendar.YEAR);
+	private int month = today.get(Calendar.MONTH)+1;
+	private int date = today.get(Calendar.DATE);	
 	//图片计数
 	private int imageNumber = 1 ;
 	public NETEASEWar(){
@@ -50,7 +56,7 @@ public class NETEASEWar implements NETEASE{
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "N";   //数据库名称
+		DBName = "IAMNETEASENEWS";   //数据库名称
 		DBTable = "war";   //表名
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
@@ -58,7 +64,15 @@ public class NETEASEWar implements NETEASE{
 		String[] newsSourceLabel =new String[]{"class","ep-time-soure cDGray","网易新闻-军事新闻"}; //（3个参数）新闻来源 同新闻时间"class","ep-time-soure cDGray" 再加上一个"网易新闻-国内新闻"
 		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // "国内" "网易新闻-国内新闻-http://news.163.com/domestic/"
 		CRUT crut = new CRUT(DBName,DBTable);
-		
+		//计算获取新闻的时间
+		if( month < 10)
+			downloadTime = year+"0"+month;
+		else 
+			downloadTime = year+""+month;
+		if(date < 10)
+			downloadTime += "0" + date;
+		else 
+			downloadTime += date ;
 		/*这个模块分三部分抓取
 		 * 1、主页"http://war.163.com/index.html"
 		 * 2.详细分类一共10叶：http://war.163.com/special/millatestnews/ http://war.163.com/special/millatestnews_06/
@@ -81,7 +95,7 @@ public class NETEASEWar implements NETEASE{
 			String html = findContentHtml(url);  //获取新闻的html
 			System.out.println(url);
 			crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel),downloadTime);
 		}
 		
 		//详细分类模块
@@ -105,7 +119,7 @@ public class NETEASEWar implements NETEASE{
 //			System.out.println(findNewsComment(url,html,newsCategroyLabel));
 //			System.out.println("\n");
 			crut.add(findNewsTitle(html,newsTitleLabel,"_网易军事"), findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"),findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel),downloadTime);
 		}
 //		System.out.println(k);
 		
@@ -130,7 +144,7 @@ public class NETEASEWar implements NETEASE{
 //			System.out.println(findNewsComment(url,html,newsCategroyLabel));
 //			System.out.println("\n");
 			crut.add(findNewsTitle(html,newsTitleLabel,"_网易军事"), findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"),findNewsOriginalTitle(html,newsTitleLabel,"_网易军事"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel),downloadTime);
 		}
 //		System.out.println(j);
 	

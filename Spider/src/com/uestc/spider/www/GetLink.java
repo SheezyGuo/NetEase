@@ -155,7 +155,7 @@ public class GetLink {
 				while(!linkContent.isEmpty()){
 					StringBuffer s = new StringBuffer(linkContent.poll());
 					i++;
-					System.out.println(s);
+//					System.out.println(s);
 					CDSB cdsb = new CDSB(s.toString() , bqtitle ,bqcontent ,bqdate ,bqnewsource ,bqcategroy ,bqbuf,encode,photourl,imageurl,imagescr,imagebuf);
 					cdsb.memory(s.toString(), bqtitle ,bqcontent ,bqdate ,bqnewsource ,bqcategroy ,bqbuf,encode,DBName,DBTable,photourl,imageurl,imagescr,imagebuf);
 //					s = null;
@@ -226,30 +226,29 @@ public class GetLink {
 				s1 = s1.append(year).append(newurl2).append("0");  //http://e.chengdu.cn/html/2014-0
 			else
 				s1 = s1.append(year).append(newurl2);
-			StringBuffer url = new StringBuffer("");
-			for(int i = 10 ; i < 12 ;i++){
-//				String url;
-				 //url.append(s1).append(j).append(s3).append(i).append(s2);
-				
-//			System.out.println(url +"QQQQQQQQQQQQQQQQQ");
+			
+			for(int i = 14 ; i < 30 ;i++){
+				StringBuffer url = new StringBuffer("");
 				try {
-					if(i < 10)
-						url = url.append(s1).append(month).append(s2).append("0").append(i).append(s3);
-					else
+//					if(i < 10)
+//						url = url.append(s1).append(month).append(s2).append("0").append(i).append(s3);
+//					else
 						url = url.append(s1).append(month).append(s2).append(i).append(s3);
-					allWeWillDo(url.toString(),bqtitle,bqcontent,
+						
+						System.out.println(url);
+						allWeWillDo(url.toString(),bqtitle,bqcontent,
 							bqdate,bqnewsource ,bqcategroy ,bqbuf,encode,DBName , DBTable,photourl,imageurl,imagescr,imagebuf);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 //					e.printStackTrace();
 				}   
 			//清空已经访问的link列表，即每天的新闻爬取存储后要对所有访问过的链接进行清理，节约内存
-				linkVisit.clear();
+//				linkVisit.clear();
 				
 			
 //			}
-			url = null;
 			System.gc();
+			System.out.println(i);
 			}
 //		}
 //		}
@@ -316,12 +315,14 @@ public class GetLink {
 		String imageurl = "IMG src=\"(.*?)res(.*?)attpic_brief.jpg\"";     //"img src=\"(.*?)res(.*?)attpic_brief.jpg\""
 		String imagescr = "http:\"?(.*?)(\"|>|\\s+)";     //"http:\"?(.*?)(\"|>|\\s+)"
 		String imagebuf = "../../../";
+		String thEMEuRL = "http://bjwb.bjd.com.cn/html/2014-11/11/node_82.htm";
 		GetLink test = new GetLink(theme,content,s1,s2,s3,s4);
+		test.getLink(thEMEuRL);
 		//获取具体某一个的所有新闻  url固定
 //		test.allWeWillDo(url1,bqtitle,bqcontent,
 //	    		bqdate,bqnewsource ,bqcategroy ,bqbuf,encode,DBName , DBTable,photourl,imageurl,imagescr,imagebuf);
 		//获取制定某天的所有新闻
-		test.resultForOneDay(2014, 11, 8, bqtitle, bqcontent, bqdate, bqnewsource, bqcategroy, bqbuf, encode, DBName, DBTable,photourl,imageurl,imagescr,imagebuf);
+//		test.resultForOneDay(2014, 11, 8, bqtitle, bqcontent, bqdate, bqnewsource, bqcategroy, bqbuf, encode, DBName, DBTable,photourl,imageurl,imagescr,imagebuf);
 		
 		long end = System.currentTimeMillis();
 		System.out.println(end-start);

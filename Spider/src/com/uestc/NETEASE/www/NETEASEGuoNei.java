@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -47,8 +48,12 @@ public class NETEASEGuoNei implements NETEASE{
 		
 	//新闻主题link
 	private String theme ;
-	
-	
+	//downloadTime
+	private String downloadTime;
+	Calendar today = Calendar.getInstance();
+	private int year = today.get(Calendar.YEAR);
+	private int month = today.get(Calendar.MONTH)+1;
+	private int date = today.get(Calendar.DATE);	
 	//图片个数
 	private int imageNumber = 1;
 //	//评论正则
@@ -58,7 +63,7 @@ public class NETEASEGuoNei implements NETEASE{
 	}
 	
 	public void getNETEASEGuoNeiNews(){
-		DBName = "N";
+		DBName = "IAMNETEASENEWS";
 		DBTable = "gn";
 		ENCODE = "gb2312";
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 t
@@ -104,6 +109,15 @@ public class NETEASEGuoNei implements NETEASE{
 		Queue<String>guoNeiNewsContent = new LinkedList<String>();
 		guoNeiNewsContent = findContentLinks(guoNeiNewsTheme,newsContentLinksReg);
 //		System.out.println(guoNeiNewsContent);
+		//计算获取新闻的时间
+		if( month < 10)
+			downloadTime = year+"0"+month;
+		else 
+			downloadTime = year+""+month;
+		if(date < 10)
+			downloadTime += "0" + date;
+		else 
+			downloadTime += date ;
 		//获取每个新闻网页的html
 		int i = 0;
 		while(!guoNeiNewsContent.isEmpty()){
@@ -116,7 +130,7 @@ public class NETEASEGuoNei implements NETEASE{
 //			System.out.println(findNewsComment(url));
 //			System.out.println("\n");
 			crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+					findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel),downloadTime);
 		}
 		System.out.println(i);
 	
@@ -126,7 +140,6 @@ public class NETEASEGuoNei implements NETEASE{
 	@Override
 	public Queue<String> findThemeLinks(String themeLink ,String themeLinkReg) {
 		
-		// TODO Auto-generated method stub
 		Queue<String> themelinks = new LinkedList<String>();
 		Pattern newsThemeLink = Pattern.compile(themeLinkReg);
 		themelinks.offer(themeLink);
@@ -165,7 +178,7 @@ public class NETEASEGuoNei implements NETEASE{
 	}
 
 	public Queue<String> findContentLinks(Queue<String> themeLink ,String contentLinkReg) {
-		// TODO Auto-generated method stub
+		
 		Queue<String> contentlinks = new LinkedList<String>(); // 临时征用
 		
 		Pattern newsContent = Pattern.compile(contentLinkReg);
@@ -213,9 +226,8 @@ public class NETEASEGuoNei implements NETEASE{
 	
 	@Override
 	public String findContentHtml(String url) {
-		// TODO Auto-generated method stub
-		String html = null;                 //网页html
 		
+		String html = null;                 //网页html
 		HttpURLConnection httpUrlConnection;
 	    InputStream inputStream;
 	    BufferedReader bufferedReader;
@@ -269,7 +281,7 @@ public class NETEASEGuoNei implements NETEASE{
 	
 	@Override
 	public String HandleHtml(String html, String one) {
-		// TODO Auto-generated method stub
+
 		NodeFilter filter = new HasAttributeFilter(one);
 		String buf = "";
 		try{
@@ -293,7 +305,6 @@ public class NETEASEGuoNei implements NETEASE{
 	
 	@Override
 	public String HandleHtml(String html, String one, String two) {
-		// TODO Auto-generated method stub
 		NodeFilter filter = new HasAttributeFilter(one,two);
 		String buf = "";
 		try{
@@ -521,6 +532,16 @@ public class NETEASEGuoNei implements NETEASE{
 	public static void main(String[] args){
 		NETEASEGuoNei test = new NETEASEGuoNei();
 		test.getNETEASEGuoNeiNews();
+		NETEASEGuoJi test1 = new NETEASEGuoJi();
+		test1.getNETEASEGuoJiNews();
+		NETEASESheHui test2 = new NETEASESheHui();
+		test2.getNETEASESheHuiNews();
+		NETEASEView test3 = new NETEASEView();
+		test3.getNETEASEViewNews();
+		NETEASEWar test4 = new NETEASEWar();
+		test4.getNETEASEWarNews();
+		NETEASEFocus test5 = new NETEASEFocus();
+		test5.getNETEASEFocusNews();
 	}
 }
 

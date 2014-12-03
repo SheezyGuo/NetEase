@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -38,6 +39,12 @@ public class NETEASEFocus implements NETEASE{
 		
 	//新闻主题link
 	private String theme ;
+	//downloadTime
+	private String downloadTime;
+	Calendar today = Calendar.getInstance();
+	private int year = today.get(Calendar.YEAR);
+	private int month = today.get(Calendar.MONTH)+1;
+	private int date = today.get(Calendar.DATE);	
 	//图片计数
 	private int imageNumber = 1 ;
 	
@@ -49,7 +56,7 @@ public class NETEASEFocus implements NETEASE{
 		 * 
 		 * */
 		ENCODE = "GB2312";
-		DBName = "N";   //数据库名称
+		DBName = "IAMNETEASENEWS";   //数据库名称
 		DBTable = "focus";   //表名
 		String[] newsTitleLabel = new String[]{"title",""};     //新闻标题标签 title or id=h1title
 		String[] newsContentLabel = new String[]{"id" ,"endText"};  //新闻内容标签 "id","endText"
@@ -69,6 +76,15 @@ public class NETEASEFocus implements NETEASE{
 		Pattern newPage = Pattern.compile(newsContentLinksReg);
         
         Matcher themeMatcher = newPage.matcher(focusHtml);
+      //计算获取新闻的时间
+  		if( month < 10)
+  			downloadTime = year+"0"+month;
+  		else 
+  			downloadTime = year+""+month;
+  		if(date < 10)
+  			downloadTime += "0" + date;
+  		else 
+  			downloadTime += date ;
         int i = 0;
         while(themeMatcher.find()){
         	i++;
@@ -80,7 +96,7 @@ public class NETEASEFocus implements NETEASE{
 //        		System.out.println(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"));
 //        		System.out.println(findNewsTime(html,newsTimeLabel));
         		crut.add(findNewsTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"),findNewsOriginalTitle(html,newsTitleLabel,"_网易新闻中心"), findNewsTime(html,newsTimeLabel),findNewsContent(html,newsContentLabel), findNewsSource(html,newsSourceLabel),
-        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel));
+        				findNewsOriginalSource(html,newsSourceLabel), findNewsCategroy(html,newsCategroyLabel), findNewsOriginalCategroy(html,newsCategroyLabel), url, findNewsImages(html,newsTimeLabel),downloadTime);
         		visitedLinks.add(url);
         	}
         	

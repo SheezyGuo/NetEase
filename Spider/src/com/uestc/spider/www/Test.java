@@ -29,8 +29,11 @@ public class Test {
 //		System.out.println(s1);
 //		File fileBuf = new File(".\\image","iloveu.jpg");
 //		System.out.println(fileBuf.getAbsolutePath());
-//		System.out.println("ss"+(1+1)+"www");
-		Calendar now = Calendar.getInstance();
-		System.out.println(now.get(Calendar.DATE));
+////		System.out.println("ss"+(1+1)+"www");
+//		Calendar now = Calendar.getInstance();
+//		System.out.println(now.get(Calendar.DATE));
+		String[] s = null ;
+		s[0] = "dd";
+		System.out.print(s[0]);
 	}
 }

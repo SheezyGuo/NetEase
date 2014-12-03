@@ -72,7 +72,7 @@ public class GetImage {
         List<String> listImgUrl = new ArrayList<String>();  
         while (matcher.find()) {  
             listImgUrl.add(matcher.group());
-            System.out.println(matcher.group()+"dddddddd");
+//            System.out.println(matcher.group()+"dddddddd");
         }  
         return listImgUrl;  
     }  
@@ -94,7 +94,7 @@ public class GetImage {
 //        	System.out.println(image+"222");
             Matcher matcher = Pattern.compile(IMGSRC_REG).matcher(image);  
             while (matcher.find()) { 
-            	System.out.println(matcher.group());
+//            	System.out.println(matcher.group());
 //            	if(listImgSrc.contains(matcher.group().substring(0, matcher.group().length() - 1)))
                 listImgSrc.add(matcher.group().substring(0, matcher.group().length() - 1));  
             }  
@@ -119,14 +119,14 @@ public class GetImage {
 //            	System.out.println("qqq");
 //            	System.out.println(url+"tttt");
             	String url = listImgSrc.get(i);
-            	System.out.println(url+"tttt");
+//            	System.out.println(url+"tttt");
                 String imageName = url.substring(url.lastIndexOf("."), url.length());  
                 URL uri = new URL(url);  
                 InputStream in = uri.openStream();
                 FileOutputStream fo;
 //                System.out.println("tttttt");
                 if(imageNum < 9){
-                	System.out.println("sssssssss");
+//                	System.out.println("sssssssss");
                 	fo = new FileOutputStream(new File(".\\image",fileName+"000"+imageNum+"000"+(i+1)+imageName)); 
                 	name.add(fileName+"000"+imageNum+"000"+(i+1)+""+imageName);
                 	
