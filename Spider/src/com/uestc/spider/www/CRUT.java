@@ -137,10 +137,12 @@ public class CRUT {
 		else if(comment.contains("\n")){
 			user.put("CommentNumber", comment.substring(0, comment.indexOf("\n")));
 		}
-			
-
-		user.put("Comment", comment);
-	
+		if(comment == null || comment == "")
+			user.put("Comment", "ÎŞÆÀÂÛ£¡");
+		else if(comment.contains("\n"))
+			user.put("Comment", comment.substring(comment.indexOf("\n"),comment.length()));
+		else
+			user.put("Comment", comment);
 
 	     users.insert(user);
 

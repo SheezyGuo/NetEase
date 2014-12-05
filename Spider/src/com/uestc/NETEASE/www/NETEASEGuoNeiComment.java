@@ -104,8 +104,8 @@ public class NETEASEGuoNeiComment implements NETEASECOMMENT{
 //			buf = buf.replaceAll("\\s+", "");
 			System.out.println(buf);
 	
-//			crut.add(url, findNewsComment(url,html,label), commentUrl);
-//			commentUrl = null;
+			crut.add(url, findNewsComment(url,html,label), commentUrl);
+			commentUrl = null;
 		}
 		System.out.println(i);
 	}
@@ -401,7 +401,7 @@ public class NETEASEGuoNeiComment implements NETEASECOMMENT{
 			System.out.println("采集 "+commentUrl+" 失败!!!");
 			return null;
 		}else;
-			System.out.println(content);
+//			System.out.println(content);
 		if(!content.contains("去跟贴广场看看")){
 			System.out.println("居然没有 去跟帖广场看看"+ commentUrl);
 			return null;

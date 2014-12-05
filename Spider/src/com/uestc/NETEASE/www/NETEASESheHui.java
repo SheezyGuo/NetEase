@@ -61,7 +61,7 @@ public class NETEASESheHui implements NETEASE{
 		String[] newsCategroyLabel = new String[]{"class","ep-crumb JS_NTES_LOG_FE"} ; // 属性
 		
 		CRUT crut = new CRUT(DBName ,DBTable);
-		//国内新闻 首页链接
+		//社会新闻 首页链接
 		theme = "http://news.163.com/shehui/";
 		
 		//新闻主题links的正则表达式
